@@ -1,6 +1,7 @@
 package com.denisborovkov.models;
 
 import com.denisborovkov.interfaces.UserDetails;
+
 import java.util.Objects;
 
 public class User implements UserDetails {

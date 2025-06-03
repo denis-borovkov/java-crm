@@ -6,6 +6,7 @@ import com.denisborovkov.exceptions.UserRegistrationException;
 import com.denisborovkov.interfaces.UserDetails;
 import com.denisborovkov.interfaces.UserServiceDetails;
 import com.denisborovkov.models.User;
+import com.denisborovkov.utils.PasswordUtils;
 
 public class LoginMenuHandler {
     private final ConsoleUI ui;
@@ -26,7 +27,7 @@ public class LoginMenuHandler {
             UserDetails user = new User()
                     .setName(name)
                     .setEmail(email)
-                    .setPassword(password)
+                    .setPassword(PasswordUtils.hashPassword(password))
                     .build();
 
             userService.registerUser(user);
@@ -45,7 +46,7 @@ public class LoginMenuHandler {
             UserDetails user = userService.getUser(name);
 
             String password = ui.prompt("Enter password: ");
-            if (password.equals(user.getPassword())) {
+            if (PasswordUtils.checkPassword(password, user.getPassword())) {
                 ui.printSuccess(" Login successful! Welcome, " + user.getName());
             } else {
                 ui.printError("✗ Invalid password");
