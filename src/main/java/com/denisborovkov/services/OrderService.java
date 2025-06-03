@@ -6,13 +6,8 @@ import com.denisborovkov.interfaces.OrderRepository;
 import com.denisborovkov.interfaces.OrderServiceDetails;
 import com.denisborovkov.exceptions.OrderNotFoundException;
 import com.denisborovkov.exceptions.OrderRegistrationException;
-import java.time.LocalDate;
 
 public class OrderService implements OrderServiceDetails {
-    private String description;
-    private double price;
-    private String status;
-    private LocalDate createdAt;
 
     private final ConsoleUI ui;
     private final OrderRepository orderRepo;
@@ -44,10 +39,6 @@ public class OrderService implements OrderServiceDetails {
         if (order == null) {
             throw new OrderNotFoundException("Order not found");
         } else {
-            order.setDescription(description);
-            order.setPrice(price);
-            order.setStatus(status);
-            order.setCreatedAt(createdAt);
             orderRepo.updateOrder(order);
             ui.println("Order updated successfully!");
         }

@@ -35,13 +35,13 @@ public class User implements UserDetails {
 
     @Override
     public User setName(String name) {
-        this.name = name != null ? name.trim() : null;
+        this.name = name;
         return this;
     }
 
     @Override
     public User setEmail(String email) {
-        this.email = email != null ? email.trim().toLowerCase() : null;
+        this.email = email;
         return this;
     }
 
