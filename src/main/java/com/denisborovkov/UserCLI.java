@@ -26,11 +26,13 @@ public class UserCLI {
         ui.println("Welcome to User Management System");
         try {
             while (true) {
-                ui.println("\n=== Main Menu ===");
-                ui.println("1. Register new user");
-                ui.println("2. Login");
-                ui.println("3. Exit");
-                ui.println("Choose an option (1-3): ");
+                ui.println("""
+                        === Main Menu ===
+                        1. Register new user
+                        2. Login
+                        3. Exit
+                        Choose an option (1-3):
+                        """);
 
                 String choice = ui.userInput();
 
