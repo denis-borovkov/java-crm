@@ -7,6 +7,7 @@ import com.denisborovkov.interfaces.UserDetails;
 import com.denisborovkov.interfaces.UserServiceDetails;
 import com.denisborovkov.models.User;
 import com.denisborovkov.utils.PasswordUtils;
+import com.denisborovkov.utils.ValidationUtils;
 
 public class LoginMenuHandler {
     private final ConsoleUI ui;
@@ -29,9 +30,10 @@ public class LoginMenuHandler {
                     .setEmail(email)
                     .setPassword(PasswordUtils.hashPassword(password))
                     .build();
-
-            userService.registerUser(user);
-            ui.printSuccess(" User registered successfully!");
+            if (ValidationUtils.validateUser(user)) {
+                userService.registerUser(user);
+                ui.printSuccess(" User registered successfully!");
+            }
         } catch (UserRegistrationException e) {
             ui.printError("Registration failed: " + e.getMessage());
         } catch (Exception e) {
@@ -44,17 +46,15 @@ public class LoginMenuHandler {
         try {
             String name = ui.prompt("Enter name: ");
             UserDetails user = userService.getUser(name);
-
             String password = ui.prompt("Enter password: ");
             if (PasswordUtils.checkPassword(password, user.getPassword())) {
                 ui.printSuccess(" Login successful! Welcome, " + user.getName());
+                userService.isLoggedIn(true);
             } else {
-                ui.printError("✗ Invalid password");
+                ui.printError("Invalid password");
             }
         } catch (UserNotFoundException e) {
             ui.printError("Login failed: " + e.getMessage());
-        } catch (Exception e) {
-            ui.printError("An unexpected error occurred: " + e.getMessage());
         }
     }
 }

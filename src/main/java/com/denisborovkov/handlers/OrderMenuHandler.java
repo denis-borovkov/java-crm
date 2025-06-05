@@ -2,6 +2,8 @@ package com.denisborovkov.handlers;
 
 import com.denisborovkov.ConsoleUI;
 import com.denisborovkov.exceptions.ClientNotFoundException;
+import com.denisborovkov.exceptions.OrderNotFoundException;
+import com.denisborovkov.exceptions.OrderRegistrationException;
 import com.denisborovkov.interfaces.ClientDetails;
 import com.denisborovkov.interfaces.ClientServiceDetails;
 import com.denisborovkov.interfaces.OrderDetails;
@@ -23,28 +25,40 @@ public class OrderMenuHandler {
         this.orderService = orderService;
     }
 
-    public void showOrderMenu() throws ClientNotFoundException {
-        ui.println("=== Order Menu ===");
-        ui.println("1. Create new order");
-        ui.println("2. Back to main menu");
-        ui.println("Choose an option (1-2): ");
+    public void showOrderMenu() throws ClientNotFoundException, OrderRegistrationException, OrderNotFoundException {
+        ui.println("""
+                === Order Menu ===
+                1. Create new order
+                2. Show all orders
+                3. Delete order
+                4. Update order
+                5. Exit
+                Choose an option (1-2):
+                """);
 
-        String choice = ui.userInput();
-
-        switch (choice) {
+        switch (ui.userInput()) {
             case "1":
                 createNewOrder();
                 break;
             case "2":
+                ui.println(orderService.getAllOrders().toString());
+                break;
+            case "3":
+                int orderId = Integer.parseInt(ui.prompt("Enter an order id"));
+                orderService.deleteOrder(orderId);
+                break;
+            case "4":
+                //TODO
+                break;
+            case "5":
                 return;
             default:
-                ui.println("Invalid option. Please choose 1 or 2.");
+                ui.println("Invalid option. Please choose 1 or 5.");
         }
     }
 
-    public void createNewOrder() throws ClientNotFoundException {
+    public void createNewOrder() throws ClientNotFoundException, OrderRegistrationException {
         ui.println("=== Create New Order ===");
-        ui.prompt("Enter client id:");
         clientService.getAllClients();
         UUID id = UUID.fromString(ui.prompt("Enter client uuid:"));
         ClientDetails client = clientService.getClient(id);
@@ -63,8 +77,8 @@ public class OrderMenuHandler {
                     .setCreatedAt(LocalDate.now())
                     .build();
             orderService.createOrder(order);
-        } catch (Exception e) {
-            ui.printError("Order creation failed: " + e.getMessage());
+        } catch (OrderRegistrationException e) {
+            throw new OrderRegistrationException(e.getMessage());
         }
     }
 }

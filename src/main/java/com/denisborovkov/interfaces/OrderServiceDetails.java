@@ -8,4 +8,5 @@ public interface OrderServiceDetails {
     void getOrder(int id) throws OrderNotFoundException;
     void updateOrder(int id) throws OrderNotFoundException;
     void deleteOrder(int id) throws OrderNotFoundException;
+    Iterable<OrderDetails> getAllOrders();
 }

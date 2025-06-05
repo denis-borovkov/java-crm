@@ -61,7 +61,7 @@ public class User implements UserDetails {
         return "User{" +
                 "name='" + name + '\'' +
                 ", email='" + email + '\'' +
-                ", password='[PROTECTED]'" +
+                ", password='" + password + '\'' +
                 '}';
     }
 
