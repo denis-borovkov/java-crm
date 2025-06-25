@@ -23,19 +23,19 @@ public class UserService implements UserServiceDetails {
             throw new UserRegistrationException("User cannot be null");
         }
         validateUser(user);
-        if (userRepo.isUserExists(user.getName())) {
+        if (userRepo.isExists(user.getId())) {
             throw new UserRegistrationException("User with name '" + user.getName() + "' already exists");
         }
         userRepo.save(user);
     }
 
-    public UserDetails getUser(String name) throws UserNotFoundException {
-        if (name == null || name.trim().isEmpty()) {
-            throw new IllegalArgumentException("Name cannot be null or empty");
+    public UserDetails getUser(String username) throws UserNotFoundException {
+        if (username == null) {
+            throw new IllegalArgumentException("Id cannot be null or empty");
         }
-        UserDetails user = userRepo.getUser(name);
+        UserDetails user = userRepo.get(Long.valueOf(username));
         if (user == null) {
-            throw new UserNotFoundException("User with name '" + name + "' not found");
+            throw new UserNotFoundException("User with id '" + username + "' not found");
         }
         return user;
     }
@@ -44,13 +44,16 @@ public class UserService implements UserServiceDetails {
         ValidationUtils.validateUser(user);
     }
 
-    public void deleteUser(String name) {
-        userRepo.deleteUser(name);
+    public void deleteUser(Long id) throws UserNotFoundException {
+        if(!userRepo.isExists(id)) {
+            throw new UserNotFoundException("User with id '" + id + "' not found");
+        }
+        userRepo.delete(id);
         ui.println("User deleted successfully!");
     }
 
     public void updateUser(UserDetails user) {
-        userRepo.updateUser(user);
+        userRepo.update(user);
         ui.println("User updated successfully!");
     }
 

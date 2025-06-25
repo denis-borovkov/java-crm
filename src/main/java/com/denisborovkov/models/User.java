@@ -2,10 +2,9 @@ package com.denisborovkov.models;
 
 import com.denisborovkov.interfaces.UserDetails;
 
-import java.util.Objects;
-
 public class User implements UserDetails {
 
+    private final Long id = System.currentTimeMillis();
     private String name;
     private String email;
     private String password;
@@ -16,6 +15,11 @@ public class User implements UserDetails {
         this.name = name;
         this.email = email;
         this.password = password;
+    }
+
+    @Override
+    public Long getId() {
+        return id;
     }
 
     @Override
@@ -63,19 +67,5 @@ public class User implements UserDetails {
                 ", email='" + email + '\'' +
                 ", password='" + password + '\'' +
                 '}';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        User user = (User) o;
-        return Objects.equals(name, user.name) &&
-                Objects.equals(email, user.email);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(name, email);
     }
 }

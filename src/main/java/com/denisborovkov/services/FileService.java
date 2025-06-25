@@ -3,7 +3,6 @@ package com.denisborovkov.services;
 import com.denisborovkov.interfaces.*;
 import com.denisborovkov.models.Message;
 import com.denisborovkov.models.Notification;
-import com.denisborovkov.models.User;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -48,7 +47,7 @@ public class FileService implements FileServiceDetails {
 
     @Override
     public void saveUsersToFile() {
-        User users = userRepo.getAllUsers;
+        UserDetails users = userRepo.getAll();
         try {
             objectMapper.writeValue(storageFile, userRepo.save(users));
         } catch (IOException e) {
@@ -102,7 +101,7 @@ public class FileService implements FileServiceDetails {
         }
         try {
             Map<String, Queue<Notification>> loadedNotifications = objectMapper.readValue(notificationsFile, new TypeReference<>() {});
-            notificationRepo.getNotificationQueue().putAll(loadedNotifications);
+            notificationRepo.putAll(loadedNotifications);
         } catch (IOException e) {
             logger.severe("Ошибка загрузки уведомлений: " + e.getMessage());
         }

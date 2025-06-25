@@ -14,6 +14,7 @@ import com.denisborovkov.services.OrderService;
 import com.denisborovkov.services.UserService;
 
 public class UserCLI {
+
     private final ConsoleUI ui = new ConsoleUI();
     private final UserRepository userRepo = new UserRepo();
     private final OrderRepository orderRepo = new OrderRepo();
@@ -24,14 +25,20 @@ public class UserCLI {
     private final UserServiceDetails userService = new UserService(ui, userRepo);
     private final OrderServiceDetails orderService = new OrderService(ui, orderRepo);
     private final ClientServiceDetails clientService = new ClientService(ui , clientRepo);
-    private final FileService fileService = new FileService(userRepo, orderRepo, clientRepo, notificationRepo, messageRepo, authenticationRepo);
     private final LoginMenuHandler login = new LoginMenuHandler(ui, userService);
     private final OrderMenuHandler order = new OrderMenuHandler(ui,clientService, orderService);
     private final ClientMenuHandler client = new ClientMenuHandler(ui, clientService);
+//    private final FileServiceDetails fileService = new FileService(
+//            userRepo,
+//            orderRepo,
+//            clientRepo,
+//            notificationRepo,
+//            messageRepo,
+//            authenticationRepo);
 
     public void run() {
         ui.println("Welcome to User Management System");
-        fileService.loadUsersFromFile();
+        //fileService.loadUsersFromFile();
         try {
             while (true) {
                 ui.println("""

@@ -7,41 +7,60 @@ import java.util.HashMap;
 
 public class UserRepo implements UserRepository {
 
-    private final Map<String, UserDetails> userDatabase = new HashMap<>();
+    private final Map<Long, UserDetails> userDatabase = new HashMap<>();
 
-    public void save(UserDetails user) {
+    @Override
+    public UserDetails save(UserDetails user) {
         if (user == null || user.getName() == null) {
             throw new IllegalArgumentException("User and user's name cannot be null");
         }
-        userDatabase.put(user.getName(), user);
+        userDatabase.put(user.getId(), user);
+        return user;
     }
 
-    public UserDetails getUser(String key) {
+    @Override
+    public UserDetails findByUsername(String username) {
+        if (username == null || username.isEmpty()) {
+            throw new IllegalArgumentException("Username cannot be null or empty");
+        }
+        return userDatabase.get(Long.parseLong(username));
+    }
+
+    @Override
+    public UserDetails get(Long key) {
         if (key == null) {
             return null;
         }
         return userDatabase.get(key);
     }
 
-    public boolean isUserExists(String name) {
-        return name != null && userDatabase.containsKey(name);
+
+    public boolean isExists(Long id) {
+        return id != null && userDatabase.containsKey(id);
     }
 
-    public int getUserCount() {
+    public int getCount() {
         return userDatabase.size();
     }
 
-    public void deleteUser(String name) {
-        if (name != null)
-            userDatabase.remove(name);
+    public void delete(Long id) {
+        if (id != null)
+            userDatabase.remove(id);
         else
             throw new IllegalArgumentException("Name cannot be null");
     }
 
-    public void updateUser(UserDetails user) {
+    public void update(UserDetails user) {
         if (user != null && user.getName() != null)
-            userDatabase.put(user.getName(), user);
+            userDatabase.put(user.getId(), user);
         else
             throw new IllegalArgumentException("User and user's name cannot be null");
+    }
+
+    public UserDetails getAll() {
+        for (UserDetails user : userDatabase.values()) {
+            System.out.println(user);
+        }
+        return userDatabase.values().iterator().next();
     }
 }

@@ -5,8 +5,8 @@ import com.denisborovkov.exceptions.UserRegistrationException;
 
 public interface UserServiceDetails {
     void registerUser(UserDetails user) throws UserRegistrationException;
-    UserDetails getUser(String name) throws UserNotFoundException;
+    UserDetails getUser(String username) throws UserNotFoundException;
     void validateUser(UserDetails user) throws UserRegistrationException;
-    void deleteUser(String name);
+    void deleteUser(Long id) throws UserNotFoundException;
     boolean isLoggedIn(boolean flag);
 }
