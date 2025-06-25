@@ -24,37 +24,53 @@ public class OrderService implements OrderServiceDetails {
         orderRepo.save(order);
     }
 
-    public void getOrder(int id) throws OrderNotFoundException {
-        OrderDetails order = orderRepo.getOrder(id);
-        if (order == null) {
-            throw new OrderNotFoundException("Order not found");
-        } else {
-            ui.println("Order retrieved successfully!");
-            ui.println("Order ID: " + order.getId());
-        }
+    @Override
+    public OrderDetails save(OrderDetails orderDetails) {
+        return null;
     }
 
-    public void updateOrder(int id) throws OrderNotFoundException {
-        OrderDetails order = orderRepo.getOrder(id);
+    public OrderDetails get(Long id) {
+        OrderDetails order = orderRepo.get(id);
+        ui.println("Order retrieved successfully!");
+        ui.println("Order ID: " + order.getId());
+        return order;
+    }
+
+    @Override
+    public boolean isExists(Long id) {
+        return orderRepo.isExists(id);
+    }
+
+    @Override
+    public int getCount() {
+        return 0;
+    }
+
+    @Override
+    public void update(OrderDetails orderDetails) {
+    }
+
+    public void update(Long id) throws OrderNotFoundException {
+        OrderDetails order = orderRepo.get(id);
         if (order == null) {
             throw new OrderNotFoundException("Order not found");
         } else {
-            orderRepo.updateOrder(order);
+            orderRepo.update(order);
             ui.println("Order updated successfully!");
         }
     }
 
-    public void deleteOrder(int id) throws OrderNotFoundException {
-        OrderDetails order = orderRepo.getOrder(id);
+    public void delete(Long id) {
+        OrderDetails order = orderRepo.get(id);
         if (order == null) {
-            throw new OrderNotFoundException("Order not found");
-        } else {
-            orderRepo.deleteOrder(id);
-            ui.println("Order deleted successfully!");
+            ui.println("Order not found");
         }
+        orderRepo.delete(id);
+        ui.println("Order deleted successfully!");
     }
 
-    public Iterable<OrderDetails> getAllOrders() {
-        return orderRepo.getAllOrders();
+    @Override
+    public OrderDetails getAll() {
+        return orderRepo.getAll();
     }
 }

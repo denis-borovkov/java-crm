@@ -5,7 +5,7 @@ import com.denisborovkov.models.Order;
 import java.time.LocalDate;
 
 public interface OrderDetails {
-    int getId();
+    long getId();
     Order setClient(Client client);
     Order setDescription(String description);
     Order setPrice(double price);

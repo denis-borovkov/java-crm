@@ -4,30 +4,40 @@ import com.denisborovkov.interfaces.ClientDetails;
 import com.denisborovkov.interfaces.ClientRepository;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 public class ClientRepo implements ClientRepository {
 
-    private final Map<UUID, ClientDetails> clients = new HashMap<>();
+    private final Map<Long, ClientDetails> clients = new HashMap<>();
 
-    public void save(ClientDetails client) {
+    public ClientDetails save(ClientDetails client) {
         clients.put(client.getId(), client);
         System.out.println("Client saved successfully!");
+        return client;
     }
 
-    public ClientDetails getClient(UUID id) {
+    public ClientDetails get(Long id) {
         return clients.get(id);
     }
 
-    public void updateClient(ClientDetails client) {
+    public void update(ClientDetails client) {
         clients.put(client.getId(), client);
         System.out.println("Client updated successfully!");
     }
 
-    public void deleteClient(UUID id) {
+    public void delete(Long id) {
         clients.remove(id);
     }
 
-    public void getAllClients() {
+    @Override
+    public ClientDetails getAll() {
+        return (ClientDetails) clients.values();
+    }
+
+    public boolean isExists(Long id) {
+        return clients.containsKey(id);
+    }
+
+    public int getCount() {
+        return clients.size();
     }
 }

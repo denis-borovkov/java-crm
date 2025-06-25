@@ -12,7 +12,6 @@ import com.denisborovkov.models.Client;
 import com.denisborovkov.models.Order;
 
 import java.time.LocalDate;
-import java.util.UUID;
 
 public class OrderMenuHandler {
     private final ConsoleUI ui;
@@ -41,11 +40,11 @@ public class OrderMenuHandler {
                 createNewOrder();
                 break;
             case "2":
-                ui.println(orderService.getAllOrders().toString());
+                ui.println(orderService.getAll().toString());
                 break;
             case "3":
-                int orderId = Integer.parseInt(ui.prompt("Enter an order id"));
-                orderService.deleteOrder(orderId);
+                Long orderId = Long.parseLong(ui.prompt("Enter an order id"));
+                orderService.delete(orderId);
                 break;
             case "4":
                 //TODO
@@ -60,7 +59,7 @@ public class OrderMenuHandler {
     public void createNewOrder() throws ClientNotFoundException, OrderRegistrationException {
         ui.println("=== Create New Order ===");
         clientService.getAllClients();
-        UUID id = UUID.fromString(ui.prompt("Enter client uuid:"));
+        Long id = Long.valueOf(ui.prompt("Enter client uuid:"));
         ClientDetails client = clientService.getClient(id);
         ui.println("Enter order details:");
 

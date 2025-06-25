@@ -9,7 +9,6 @@ public class UserRepo implements UserRepository {
 
     private final Map<Long, UserDetails> userDatabase = new HashMap<>();
 
-    @Override
     public UserDetails save(UserDetails user) {
         if (user == null || user.getName() == null) {
             throw new IllegalArgumentException("User and user's name cannot be null");
@@ -18,7 +17,6 @@ public class UserRepo implements UserRepository {
         return user;
     }
 
-    @Override
     public UserDetails findByUsername(String username) {
         if (username == null || username.isEmpty()) {
             throw new IllegalArgumentException("Username cannot be null or empty");
@@ -26,14 +24,12 @@ public class UserRepo implements UserRepository {
         return userDatabase.get(Long.parseLong(username));
     }
 
-    @Override
     public UserDetails get(Long key) {
         if (key == null) {
             return null;
         }
         return userDatabase.get(key);
     }
-
 
     public boolean isExists(Long id) {
         return id != null && userDatabase.containsKey(id);

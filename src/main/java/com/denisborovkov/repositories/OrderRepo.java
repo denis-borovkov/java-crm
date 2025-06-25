@@ -7,25 +7,36 @@ import java.util.Map;
 
 public class OrderRepo implements OrderRepository {
 
-    private final Map<Integer, OrderDetails> orders = new HashMap<>();
+    private final Map<Long, OrderDetails> orders = new HashMap<>();
 
-    public void save(OrderDetails order) {
+    public OrderDetails save(OrderDetails order) {
         orders.put(order.getId(), order);
+        return order;
     }
 
-    public OrderDetails getOrder(int id) {
+    public OrderDetails get(Long id) {
         return orders.get(id);
     }
 
-    public void updateOrder(OrderDetails order) {
+    @Override
+    public boolean isExists(Long id) {
+        return orders.containsKey(id);
+    }
+
+    @Override
+    public int getCount() {
+        return orders.size();
+    }
+
+    public void update(OrderDetails order) {
         orders.put(order.getId(), order);
     }
 
-    public void deleteOrder(int id) {
+    public void delete(Long id) {
         orders.remove(id);
     }
 
-    public Iterable<OrderDetails> getAllOrders() {
-        return orders.values();
+    public OrderDetails getAll() {
+        return (OrderDetails) orders.values();
     }
 }

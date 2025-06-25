@@ -1,10 +1,9 @@
 package com.denisborovkov.interfaces;
 
-import java.util.UUID;
 import com.denisborovkov.models.Client;
 
 public interface ClientDetails {
-    UUID getId();
+    Long getId();
     String getName();
     String getEmail();
     String getPhoneNumber();

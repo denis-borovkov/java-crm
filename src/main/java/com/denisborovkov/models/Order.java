@@ -23,7 +23,7 @@ public class Order implements OrderDetails {
         this.createdAt = createdAt;
     }
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 

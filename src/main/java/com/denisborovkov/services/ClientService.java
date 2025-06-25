@@ -7,7 +7,6 @@ import com.denisborovkov.interfaces.ClientDetails;
 import com.denisborovkov.interfaces.ClientRepository;
 import com.denisborovkov.interfaces.ClientServiceDetails;
 import com.denisborovkov.utils.ValidationUtils;
-import java.util.UUID;
 
 public class ClientService implements ClientServiceDetails {
     private final ConsoleUI ui;
@@ -26,32 +25,31 @@ public class ClientService implements ClientServiceDetails {
         clientRepo.save(client);
     }
 
-    @Override
-    public ClientDetails getClient(UUID id) throws ClientNotFoundException {
+    public ClientDetails getClient(Long id) throws ClientNotFoundException {
         if (id == null) {
             throw new ClientNotFoundException("Client cannot be null");
         }
-        return clientRepo.getClient(id);
+        return clientRepo.get(id);
     }
 
     public void updateClient(ClientDetails client) throws ClientNotFoundException {
         if (client == null) {
             throw new ClientNotFoundException("Client cannot be null");
         }
-        clientRepo.updateClient(client);
+        clientRepo.update(client);
         ui.println("Client updated");
     }
 
-    public void deleteClient(UUID id) throws ClientNotFoundException {
+    public void deleteClient(Long id) throws ClientNotFoundException {
         if (id == null) {
             throw new ClientNotFoundException("Client cannot be null");
         }
-        clientRepo.deleteClient(id);
+        clientRepo.delete(id);
         ui.println("Client deleted");
     }
 
     public void getAllClients() {
-        clientRepo.getAllClients();
+        clientRepo.getAll();
     }
 
     public void validateClient(ClientDetails client) throws ClientRegistrationException {
