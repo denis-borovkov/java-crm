@@ -40,11 +40,11 @@ public class OrderMenuHandler {
                 createNewOrder();
                 break;
             case "2":
-                ui.println(orderService.getAll().toString());
+                ui.println(orderService.getAll());
                 break;
             case "3":
                 Long orderId = Long.parseLong(ui.prompt("Enter an order id"));
-                orderService.delete(orderId);
+                orderService.deleteOrder(orderId);
                 break;
             case "4":
                 //TODO
@@ -56,11 +56,11 @@ public class OrderMenuHandler {
         }
     }
 
-    public void createNewOrder() throws ClientNotFoundException, OrderRegistrationException {
+    public void createNewOrder() throws OrderRegistrationException {
         ui.println("=== Create New Order ===");
-        clientService.getAllClients();
+        clientService.getAll();
         Long id = Long.valueOf(ui.prompt("Enter client uuid:"));
-        ClientDetails client = clientService.getClient(id);
+        ClientDetails client = clientService.get(id);
         ui.println("Enter order details:");
 
         try {

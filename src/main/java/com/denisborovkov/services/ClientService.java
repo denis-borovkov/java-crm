@@ -18,38 +18,25 @@ public class ClientService implements ClientServiceDetails {
     }
 
     public void createClient(ClientDetails client) throws ClientRegistrationException {
-        if (client == null) {
-            throw new ClientRegistrationException("Client cannot be null");
-        }
         validateClient(client);
         clientRepo.save(client);
     }
 
-    public ClientDetails getClient(Long id) throws ClientNotFoundException {
-        if (id == null) {
-            throw new ClientNotFoundException("Client cannot be null");
-        }
-        return clientRepo.get(id);
-    }
-
-    public void updateClient(ClientDetails client) throws ClientNotFoundException {
-        if (client == null) {
-            throw new ClientNotFoundException("Client cannot be null");
+    public void updateClient(Long id, ClientDetails client) throws ClientNotFoundException {
+        if (clientRepo.get(id) == null) {
+            throw new ClientNotFoundException("Client with id " + id + " not found");
         }
         clientRepo.update(client);
         ui.println("Client updated");
     }
 
-    public void deleteClient(Long id) throws ClientNotFoundException {
-        if (id == null) {
-            throw new ClientNotFoundException("Client cannot be null");
-        }
+    public void deleteClient(Long id) {
         clientRepo.delete(id);
         ui.println("Client deleted");
     }
 
-    public void getAllClients() {
-        clientRepo.getAll();
+    public ClientDetails getAllClients() {
+        return clientRepo.getAll();
     }
 
     public void validateClient(ClientDetails client) throws ClientRegistrationException {

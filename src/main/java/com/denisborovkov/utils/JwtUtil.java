@@ -1,5 +1,6 @@
 package com.denisborovkov.utils;
 
+import com.denisborovkov.interfaces.UserDetails;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 
@@ -13,9 +14,9 @@ public class JwtUtil {
 
     private static final SecretKey KEY = Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
 
-    public String generateToken() {
+    public String generateToken(UserDetails user) {
         return Jwts.builder()
-                .subject(user.getUsername())
+                .subject(user.getName())
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
                 .signWith(KEY)

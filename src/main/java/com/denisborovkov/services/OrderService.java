@@ -24,33 +24,17 @@ public class OrderService implements OrderServiceDetails {
         orderRepo.save(order);
     }
 
-    @Override
-    public OrderDetails save(OrderDetails orderDetails) {
-        return null;
-    }
-
-    public OrderDetails get(Long id) {
+    public OrderDetails getOrder(Long id) throws OrderNotFoundException {
         OrderDetails order = orderRepo.get(id);
+        if (order == null) {
+            throw new OrderNotFoundException("Order with id " + id + " not found");
+        }
         ui.println("Order retrieved successfully!");
         ui.println("Order ID: " + order.getId());
         return order;
     }
 
-    @Override
-    public boolean isExists(Long id) {
-        return orderRepo.isExists(id);
-    }
-
-    @Override
-    public int getCount() {
-        return 0;
-    }
-
-    @Override
-    public void update(OrderDetails orderDetails) {
-    }
-
-    public void update(Long id) throws OrderNotFoundException {
+    public void updateOrder(Long id) throws OrderNotFoundException {
         OrderDetails order = orderRepo.get(id);
         if (order == null) {
             throw new OrderNotFoundException("Order not found");
@@ -60,17 +44,11 @@ public class OrderService implements OrderServiceDetails {
         }
     }
 
-    public void delete(Long id) {
-        OrderDetails order = orderRepo.get(id);
-        if (order == null) {
-            ui.println("Order not found");
+    public void deleteOrder(Long id) throws OrderNotFoundException {
+        if (id == null) {
+            throw new OrderNotFoundException("Order not found");
         }
         orderRepo.delete(id);
         ui.println("Order deleted successfully!");
-    }
-
-    @Override
-    public OrderDetails getAll() {
-        return orderRepo.getAll();
     }
 }
