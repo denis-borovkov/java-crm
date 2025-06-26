@@ -4,22 +4,23 @@ import com.denisborovkov.interfaces.OrderDetails;
 import com.denisborovkov.interfaces.OrderRepository;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public class OrderRepo implements OrderRepository {
 
-    private final Map<Long, OrderDetails> orders = new HashMap<>();
+    private final Map<UUID, OrderDetails> orders = new HashMap<>();
 
     public OrderDetails save(OrderDetails order) {
         orders.put(order.getId(), order);
         return order;
     }
 
-    public OrderDetails get(Long id) {
+    public OrderDetails get(UUID id) {
         return orders.get(id);
     }
 
     @Override
-    public boolean isExists(Long id) {
+    public boolean isExists(UUID id) {
         return orders.containsKey(id);
     }
 
@@ -32,7 +33,7 @@ public class OrderRepo implements OrderRepository {
         orders.put(order.getId(), order);
     }
 
-    public void delete(Long id) {
+    public void delete(UUID id) {
         orders.remove(id);
     }
 

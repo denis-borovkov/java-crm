@@ -8,4 +8,8 @@ import java.util.Map;
 public class AuthenticationRepo implements AuthenticationRepository {
     private final Map<String, String> authData = new HashMap<>();
 
+    @Override
+    public void save(Map<String, String> authMap) {
+        authMap.putAll(authData);
+    }
 }

@@ -12,6 +12,7 @@ import com.denisborovkov.models.Client;
 import com.denisborovkov.models.Order;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 public class OrderMenuHandler {
     private final ConsoleUI ui;
@@ -43,7 +44,7 @@ public class OrderMenuHandler {
                 ui.println(orderService.getAllOrders());
                 break;
             case "3":
-                Long orderId = Long.parseLong(ui.prompt("Enter an order id"));
+                UUID orderId = UUID.fromString(ui.prompt("Enter an order id"));
                 orderService.deleteOrder(orderId);
                 break;
             case "4":

@@ -22,6 +22,14 @@ public class ClientService implements ClientServiceDetails {
         clientRepo.save(client);
     }
 
+    @Override
+    public ClientDetails getClient(Long clientId) throws ClientNotFoundException {
+        if (clientId == null) {
+            throw new ClientNotFoundException("Client id is null");
+        }
+        return clientRepo.get(clientId);
+    }
+
     public void updateClient(Long id, ClientDetails client) throws ClientNotFoundException {
         if (clientRepo.get(id) == null) {
             throw new ClientNotFoundException("Client with id " + id + " not found");

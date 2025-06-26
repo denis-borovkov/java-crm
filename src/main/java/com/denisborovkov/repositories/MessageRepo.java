@@ -12,7 +12,10 @@ public class MessageRepo implements MessageRepository {
     private final Map<String, ArrayList<Message>> messagesData = new HashMap<>();
 
     public void saveMessage(UserDetails username, Message message) {
+        messagesData.put(username.getName(), getMessages(username));
+    }
 
-        messagesData.getOrDefault(username.getName(), new ArrayList<String>().add(message));
+    public ArrayList<Message> getMessages(UserDetails username) {
+        return messagesData.get(username.getName());
     }
 }

@@ -80,7 +80,7 @@ public class FileService implements FileServiceDetails {
     public void loadMessagesFromFile() {
         try {
             Map<String, List<Message>> loadedMessages = objectMapper.readValue(messagesFile, new TypeReference<>() {});
-            messageRepo.save(loadedMessages);
+            messageRepo.saveMessage(userRepo.getAll(), (Message) loadedMessages.values().toArray()[0]);
         } catch (IOException e) {
             ui.printError("Ошибка загрузки файла сообщений. Будет создан новый файл\n");
         }
@@ -89,7 +89,7 @@ public class FileService implements FileServiceDetails {
     @Override
     public void saveNotificationsToFile() {
         try {
-            objectMapper.writeValue(notificationsFile, notificationRepo.);
+            objectMapper.writeValue(notificationsFile, notificationRepo);
         } catch (IOException e) {
             ui.printError("Ошибка сохранения уведомлений: " + e.getMessage());
         }
@@ -103,7 +103,7 @@ public class FileService implements FileServiceDetails {
         }
         try {
             Map<String, Queue<Notification>> loadedNotifications = objectMapper.readValue(notificationsFile, new TypeReference<>() {});
-            notificationRepo.putAll(loadedNotifications);
+            notificationRepo.save((Notification) loadedNotifications);
         } catch (IOException e) {
             ui.printError("Ошибка загрузки уведомлений: " + e.getMessage());
         }
@@ -111,7 +111,7 @@ public class FileService implements FileServiceDetails {
     @Override
     public void saveAuthDataToFile() {
         try {
-            objectMapper.writeValue(authenticationDataFile, authenticationRepo.);
+            objectMapper.writeValue(authenticationDataFile, authenticationRepo);
         } catch (IOException e) {
             ui.printError("Не удалось сохранить пользователей " + e.getMessage());
         }
@@ -125,7 +125,7 @@ public class FileService implements FileServiceDetails {
         }
         try {
             Map<String, String> loadedAuthData = objectMapper.readValue(authenticationDataFile, new TypeReference<>() {});
-            authenticationRepo.putAll(loadedAuthData);
+            authenticationRepo.save(loadedAuthData);
         } catch (IOException e) {
             ui.printError("Не удалось загрузить пользователей. Будет создан новый файл. \n" + e.getMessage());
         }
