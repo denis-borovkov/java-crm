@@ -6,8 +6,6 @@ import com.denisborovkov.interfaces.ClientDetails;
 import com.denisborovkov.interfaces.ClientServiceDetails;
 import com.denisborovkov.models.Client;
 
-import java.util.UUID;
-
 public class ClientMenuHandler {
     private final ConsoleUI ui;
     private final ClientServiceDetails clientService;
@@ -45,7 +43,7 @@ public class ClientMenuHandler {
             String status = ui.prompt("Enter status: ");
 
             ClientDetails client = new Client()
-                    .setId(UUID.randomUUID())
+                    .setId()
                     .setName(name)
                     .setEmail(email)
                     .setPhoneNumber(phoneNumber)

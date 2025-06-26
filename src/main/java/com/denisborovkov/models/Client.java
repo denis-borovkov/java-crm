@@ -1,10 +1,9 @@
 package com.denisborovkov.models;
 
 import com.denisborovkov.interfaces.ClientDetails;
-import java.util.UUID;
 
 public class Client implements ClientDetails {
-    private UUID id;
+    private Long id;
     private String name;
     private String email;
     private String phoneNumber;
@@ -12,7 +11,7 @@ public class Client implements ClientDetails {
 
     public Client() {}
 
-    public Client(UUID id, String name, String email, String phoneNumber, String status) {
+    public Client(Long id, String name, String email, String phoneNumber, String status) {
         this.id = id;
         this.name = name;
         this.email = email;
@@ -24,8 +23,8 @@ public class Client implements ClientDetails {
         return id;
     }
 
-    public Client setId(UUID id) {
-        this.id = UUID.randomUUID();
+    public Client setId() {
+        this.id = System.currentTimeMillis();
         return this;
     }
 

@@ -1,5 +1,6 @@
 package com.denisborovkov.services;
 
+import com.denisborovkov.ConsoleUI;
 import com.denisborovkov.interfaces.*;
 import com.denisborovkov.models.Message;
 import com.denisborovkov.models.Notification;
@@ -11,7 +12,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
-import java.util.logging.Logger;
 
 public class FileService implements FileServiceDetails {
     private final File storageFile = new File("/resources/users.json");
@@ -20,7 +20,6 @@ public class FileService implements FileServiceDetails {
     private final File messagesFile = new File("/resources/messages.json");
     private final File notificationsFile = new File("/resources/notifications.json");
     private final File authenticationDataFile = new File("/resources/authdata.json");
-    private final Logger logger = Logger.getLogger(this.getClass().getName());
 
     private final UserRepository userRepo;
     private final OrderRepository orderRepo;
@@ -28,6 +27,7 @@ public class FileService implements FileServiceDetails {
     private final NotificationRepository notificationRepo;
     private final MessageRepository messageRepo;
     private final AuthenticationRepository authenticationRepo;
+    private final ConsoleUI ui;
     private final ObjectMapper objectMapper;
 
     public FileService(UserRepository userRepo,
@@ -35,13 +35,15 @@ public class FileService implements FileServiceDetails {
                        ClientRepository clientRepo,
                        NotificationRepository notificationRepo,
                        MessageRepository messageRepo,
-                       AuthenticationRepository authenticationRepo) {
+                       AuthenticationRepository authenticationRepo,
+                       ConsoleUI ui) {
         this.userRepo = userRepo;
         this.orderRepo = orderRepo;
         this.clientRepo = clientRepo;
         this.notificationRepo = notificationRepo;
         this.messageRepo = messageRepo;
         this.authenticationRepo = authenticationRepo;
+        this.ui = ui;
         this.objectMapper = new ObjectMapper();
     }
 
@@ -51,7 +53,7 @@ public class FileService implements FileServiceDetails {
         try {
             objectMapper.writeValue(storageFile, userRepo.save(users));
         } catch (IOException e) {
-            logger.severe("Не удалось сохранить пользователей " + e.fillInStackTrace());
+            ui.printError("Не удалось сохранить пользователей " + e.fillInStackTrace());
         }
     }
 
@@ -61,16 +63,16 @@ public class FileService implements FileServiceDetails {
             Map<String, UserDetails> loadedUsers = objectMapper.readValue(storageFile, new TypeReference<>() {});
             userRepo.save((UserDetails) loadedUsers.values());
         } catch (IOException e) {
-            logger.severe("Не удалось загрузить пользователей. Будет создан новый файл. \n" + e.getMessage());
+            ui.printError("Не удалось загрузить пользователей. Будет создан новый файл. \n" + e.getMessage());
         }
     }
 
     @Override
     public void saveMessagesToFile() {
         try {
-            objectMapper.writeValue(messagesFile, messageRepo.);
+            objectMapper.writeValue(messagesFile, messageRepo);
         } catch (IOException e) {
-            logger.severe("Ошибка сохранения файла сообщений\n");
+            ui.printError("Ошибка сохранения файла сообщений\n");
         }
     }
 
@@ -78,9 +80,9 @@ public class FileService implements FileServiceDetails {
     public void loadMessagesFromFile() {
         try {
             Map<String, List<Message>> loadedMessages = objectMapper.readValue(messagesFile, new TypeReference<>() {});
-            messageRepo.put(loadedMessages);
+            messageRepo.save(loadedMessages);
         } catch (IOException e) {
-            logger.severe("Ошибка загрузки файла сообщений. Будет создан новый файл\n");
+            ui.printError("Ошибка загрузки файла сообщений. Будет создан новый файл\n");
         }
     }
 
@@ -89,21 +91,21 @@ public class FileService implements FileServiceDetails {
         try {
             objectMapper.writeValue(notificationsFile, notificationRepo.);
         } catch (IOException e) {
-            logger.severe("Ошибка сохранения уведомлений: " + e.getMessage());
+            ui.printError("Ошибка сохранения уведомлений: " + e.getMessage());
         }
     }
 
     @Override
     public void loadNotificationsFromFile() {
         if (!notificationsFile.exists()) {
-            logger.warning("Файл уведомлений не найден, создаётся новый.");
+            ui.printError("Файл уведомлений не найден, создаётся новый.");
             return;
         }
         try {
             Map<String, Queue<Notification>> loadedNotifications = objectMapper.readValue(notificationsFile, new TypeReference<>() {});
             notificationRepo.putAll(loadedNotifications);
         } catch (IOException e) {
-            logger.severe("Ошибка загрузки уведомлений: " + e.getMessage());
+            ui.printError("Ошибка загрузки уведомлений: " + e.getMessage());
         }
     }
     @Override
@@ -111,21 +113,21 @@ public class FileService implements FileServiceDetails {
         try {
             objectMapper.writeValue(authenticationDataFile, authenticationRepo.);
         } catch (IOException e) {
-            logger.severe("Не удалось сохранить пользователей " + e.getMessage());
+            ui.printError("Не удалось сохранить пользователей " + e.getMessage());
         }
     }
 
     @Override
     public void loadAuthDataFromFile() {
         if (!authenticationDataFile.exists()) {
-            logger.warning("Файл пользовательских ключей не найден, создаётся новый.");
+            ui.printError("Файл пользовательских ключей не найден, создаётся новый.");
             return;
         }
         try {
             Map<String, String> loadedAuthData = objectMapper.readValue(authenticationDataFile, new TypeReference<>() {});
             authenticationRepo.putAll(loadedAuthData);
         } catch (IOException e) {
-            logger.severe("Не удалось загрузить пользователей. Будет создан новый файл. \n" + e.getMessage());
+            ui.printError("Не удалось загрузить пользователей. Будет создан новый файл. \n" + e.getMessage());
         }
     }
 }

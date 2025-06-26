@@ -5,7 +5,7 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 public class Order implements OrderDetails {
-    private int id;
+    private UUID id;
     private Client client;
     private String description;
     private double price;
@@ -14,7 +14,7 @@ public class Order implements OrderDetails {
 
     public Order() {}
 
-    public Order(int id, Client client, String description, double price, String status, LocalDate createdAt) {
+    public Order(UUID id, Client client, String description, double price, String status, LocalDate createdAt) {
         this.id = id;
         this.client = client;
         this.description = description;
@@ -23,12 +23,11 @@ public class Order implements OrderDetails {
         this.createdAt = createdAt;
     }
 
-    public long getId() {
+    public UUID getId() {
         return id;
     }
 
     public Order setId() {
-        this.id = UUID.randomUUID().hashCode();
         return this;
     }
 

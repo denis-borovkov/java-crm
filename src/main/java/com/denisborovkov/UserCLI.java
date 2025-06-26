@@ -28,17 +28,18 @@ public class UserCLI {
     private final LoginMenuHandler login = new LoginMenuHandler(ui, userService);
     private final OrderMenuHandler order = new OrderMenuHandler(ui,clientService, orderService);
     private final ClientMenuHandler client = new ClientMenuHandler(ui, clientService);
-//    private final FileServiceDetails fileService = new FileService(
-//            userRepo,
-//            orderRepo,
-//            clientRepo,
-//            notificationRepo,
-//            messageRepo,
-//            authenticationRepo);
+    private final FileServiceDetails fileService = new FileService(
+            userRepo,
+            orderRepo,
+            clientRepo,
+            notificationRepo,
+            messageRepo,
+            authenticationRepo,
+            ui);
 
     public void run() {
         ui.println("Welcome to User Management System");
-        //fileService.loadUsersFromFile();
+        fileService.loadUsersFromFile();
         try {
             while (true) {
                 ui.println("""
