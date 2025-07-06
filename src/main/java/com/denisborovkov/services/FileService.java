@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.Queue;
 
 public class FileService implements FileServiceDetails {
-    private final File storageFile = new File("/resources/users.json");
+    private final File usersFile = new File("C:/Users/godli/java-crm/src/main/resources/users.json");
     private final File ordersFile = new File("/resources/orders.json");
     private final File clientsFile = new File("/resources/clients.json");
     private final File messagesFile = new File("/resources/messages.json");
@@ -45,13 +45,15 @@ public class FileService implements FileServiceDetails {
         this.authenticationRepo = authenticationRepo;
         this.ui = ui;
         this.objectMapper = new ObjectMapper();
+        this.objectMapper.activateDefaultTyping(
+                objectMapper.getPolymorphicTypeValidator(),
+                ObjectMapper.DefaultTyping.NON_FINAL);
     }
 
     @Override
     public void saveUsersToFile() {
-        UserDetails users = userRepo.getAll();
         try {
-            objectMapper.writeValue(storageFile, userRepo.save(users));
+            objectMapper.writeValue(usersFile, userRepo.getUserDatabase());
         } catch (IOException e) {
             ui.printError("Не удалось сохранить пользователей " + e.fillInStackTrace());
         }
@@ -59,9 +61,14 @@ public class FileService implements FileServiceDetails {
 
     @Override
     public void loadUsersFromFile() {
+        if (!usersFile.exists()) {
+            ui.printError("Не удалось загрузить пользователей. Будет создан новый файл.");
+            return;
+        }
         try {
-            Map<String, UserDetails> loadedUsers = objectMapper.readValue(storageFile, new TypeReference<>() {});
-            userRepo.save((UserDetails) loadedUsers.values());
+            Map<Long, UserDetails> loadedUsers = objectMapper.readValue(usersFile, new TypeReference<>() {
+            });
+            userRepo.loadAll(loadedUsers);
         } catch (IOException e) {
             ui.printError("Не удалось загрузить пользователей. Будет создан новый файл. \n" + e.getMessage());
         }

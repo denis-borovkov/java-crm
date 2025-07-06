@@ -26,6 +26,7 @@ public class LoginMenuHandler {
             String password = ui.prompt("Enter password: ");
 
             UserDetails user = new User()
+                    .setId()
                     .setName(name)
                     .setEmail(email)
                     .setPassword(PasswordUtils.hashPassword(password))

@@ -9,6 +9,16 @@ public class UserRepo implements UserRepository {
 
     private final Map<Long, UserDetails> userDatabase = new HashMap<>();
 
+    @Override
+    public Map<Long, UserDetails> getUserDatabase() {
+        return new HashMap<>(userDatabase);
+    }
+
+    @Override
+    public void loadAll(Map<Long, UserDetails> users) {
+        userDatabase.putAll(users);
+    }
+
     public UserDetails save(UserDetails user) {
         if (user == null || user.getName() == null) {
             throw new IllegalArgumentException("User and user's name cannot be null");
@@ -21,7 +31,20 @@ public class UserRepo implements UserRepository {
         if (username == null || username.isEmpty()) {
             throw new IllegalArgumentException("Username cannot be null or empty");
         }
-        return userDatabase.get(Long.parseLong(username));
+        return userDatabase.values().stream()
+                .filter(user -> username.equals(user.getName()))
+                .findFirst()
+                .orElse(null);
+    }
+
+    public UserDetails findByEmail(String email) {
+        if (email == null || email.isEmpty()) {
+            throw new IllegalArgumentException("Email cannot be null or empty");
+        }
+        return userDatabase.values().stream()
+                .filter(user -> email.equals(user.getEmail()))
+                .findFirst()
+                .orElse(null);
     }
 
     public UserDetails get(Long key) {

@@ -33,9 +33,9 @@ public class UserService implements UserServiceDetails {
         if (username == null) {
             throw new IllegalArgumentException("Id cannot be null or empty");
         }
-        UserDetails user = userRepo.get(Long.valueOf(username));
+        UserDetails user = userRepo.findByUsername(username);
         if (user == null) {
-            throw new UserNotFoundException("User with id '" + username + "' not found");
+            throw new UserNotFoundException("User with username: " + username + " not found");
         }
         return user;
     }

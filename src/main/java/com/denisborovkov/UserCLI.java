@@ -53,6 +53,7 @@ public class UserCLI {
                 switch (ui.userInput()) {
                     case "1":
                         login.signup();
+                        fileService.saveUsersToFile();
                         break;
                     case "2":
                         login.signin();
