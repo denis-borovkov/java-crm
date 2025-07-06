@@ -39,7 +39,7 @@ public class OrderService implements OrderServiceDetails {
     }
 
     @Override
-    public String getAllOrders() throws OrderNotFoundException {
+    public String getAllOrders() {
         List<OrderDetails> orders = Collections.singletonList(orderRepo.getAll());
         ui.println("Orders retrieved successfully!");
         return orders.toString();

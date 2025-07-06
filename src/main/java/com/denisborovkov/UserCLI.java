@@ -52,28 +52,27 @@ public class UserCLI {
 
                 switch (ui.userInput()) {
                     case "1":
-                        login.signup();
-                        fileService.saveUsersToFile();
+                        if (login.signup())
+                            fileService.saveUsersToFile();
                         break;
                     case "2":
-                        login.signin();
-                        while (userService.isLoggedIn(true)) {
+                        while (login.signin()) {
                             ui.println("""
                                      === User Menu ===
-                                     1. Register new client
-                                     2. Register new order
+                                     1. Show client menu
+                                     2. Show order menu
                                      3. Exit
                                      Choose an option (1-3):
                                     """);
                             switch (ui.userInput()) {
                                 case "1":
                                     client.showClientMenu();
-                                    break;
+                                    continue;
                                 case "2":
                                      order.showOrderMenu();
-                                    break;
+                                    continue;
                                 case "3":
-                                     return;
+                                     continue;
                                 default:
                                     ui.println("Invalid option. Please choose 1, 2, or 3.");
                             }

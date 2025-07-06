@@ -18,7 +18,7 @@ public class LoginMenuHandler {
         this.userService = userService;
     }
 
-    public void signup() {
+    public boolean signup() {
         ui.println("=== User Registration ===");
         try {
             String name = ui.prompt("Enter name: ");
@@ -35,14 +35,16 @@ public class LoginMenuHandler {
                 userService.registerUser(user);
                 ui.printSuccess(" User registered successfully!");
             }
+            return true;
         } catch (UserRegistrationException e) {
             ui.printError("Registration failed: " + e.getMessage());
         } catch (Exception e) {
             ui.printError("An unexpected error occurred: " + e.getMessage());
         }
+        return false;
     }
 
-    public void signin() {
+    public boolean signin() {
         ui.println("=== User Login ===");
         try {
             String name = ui.prompt("Enter name: ");
@@ -50,12 +52,13 @@ public class LoginMenuHandler {
             String password = ui.prompt("Enter password: ");
             if (PasswordUtils.checkPassword(password, user.getPassword())) {
                 ui.printSuccess(" Login successful! Welcome, " + user.getName());
-                userService.isLoggedIn(true);
+                return true;
             } else {
                 ui.printError("Invalid password");
             }
         } catch (UserNotFoundException e) {
             ui.printError("Login failed: " + e.getMessage());
         }
+        return false;
     }
 }

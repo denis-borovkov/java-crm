@@ -9,6 +9,11 @@ public class ClientRepo implements ClientRepository {
 
     private final Map<Long, ClientDetails> clients = new HashMap<>();
 
+    @Override
+    public Map<Long, ClientDetails> getClientDatabase() {
+        return new HashMap<>(clients);
+    }
+
     public ClientDetails save(ClientDetails client) {
         clients.put(client.getId(), client);
         System.out.println("Client saved successfully!");

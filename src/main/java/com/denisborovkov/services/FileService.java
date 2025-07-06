@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+import java.util.UUID;
 
 public class FileService implements FileServiceDetails {
     private final File usersFile = new File("C:/Users/godli/java-crm/src/main/resources/users.json");
@@ -135,6 +136,46 @@ public class FileService implements FileServiceDetails {
             authenticationRepo.save(loadedAuthData);
         } catch (IOException e) {
             ui.printError("Не удалось загрузить пользователей. Будет создан новый файл. \n" + e.getMessage());
+        }
+    }
+    public void saveOrdersToFile() {
+        try {
+            objectMapper.writeValue(ordersFile, orderRepo);
+        } catch (IOException e) {
+            ui.printError("Не удалось сохранить файл заказов. Будет создан новый файл. \n");
+        }
+    }
+
+    public void loadOrdersFromFile() {
+        if (!ordersFile.exists()) {
+            ui.printError("Файл заказов не найден, создаётся новый.");
+            return;
+        }
+        try {
+            Map<UUID, OrderDetails> orderDetailsData = objectMapper.readValue(ordersFile, new TypeReference<>() {});
+            orderRepo.loadAll(orderDetailsData);
+        } catch (Exception e) {
+            ui.printError("Не удалось загрузить файл заказов. Будет создан новый файл. \n" + e.getMessage());
+        }
+    }
+
+    public void saveClientsToFile() {
+        try {
+            objectMapper.writeValue(clientsFile, clientRepo);
+        } catch (IOException e) {
+            ui.printError(e.getMessage());
+        }
+    }
+
+    public void loadClientsFromFile() {
+        if (!clientsFile.exists()) {
+            ui.printError("Не удалось загрузить файл клиентов. Будет создан новый файл. \n");
+            return;
+        }
+        try {
+            Map<Long, ClientDetails> clientDetailsData = objectMapper.readValue(clientsFile, new TypeReference<>() {});
+        } catch (Exception e) {
+            ui.printError(e.getMessage());
         }
     }
 }

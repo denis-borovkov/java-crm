@@ -23,7 +23,7 @@ public class UserService implements UserServiceDetails {
             throw new UserRegistrationException("User cannot be null");
         }
         validateUser(user);
-        if (userRepo.isExists(user.getId())) {
+        if (userRepo.getUserDatabase().get(user.getId()) != null){
             throw new UserRegistrationException("User with name '" + user.getName() + "' already exists");
         }
         userRepo.save(user);
