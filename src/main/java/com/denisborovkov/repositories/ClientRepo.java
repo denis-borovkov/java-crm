@@ -10,7 +10,7 @@ public class ClientRepo implements ClientRepository {
     private final Map<Long, ClientDetails> clients = new HashMap<>();
 
     @Override
-    public Map<Long, ClientDetails> getClientDatabase() {
+    public Map<Long, ClientDetails> getClientsData() {
         return new HashMap<>(clients);
     }
 
@@ -35,7 +35,7 @@ public class ClientRepo implements ClientRepository {
 
     @Override
     public ClientDetails getAll() {
-        return (ClientDetails) clients.values();
+        return clients.values();
     }
 
     public boolean isExists(Long id) {

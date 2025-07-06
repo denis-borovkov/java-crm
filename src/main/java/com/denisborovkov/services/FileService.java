@@ -140,7 +140,7 @@ public class FileService implements FileServiceDetails {
     }
     public void saveOrdersToFile() {
         try {
-            objectMapper.writeValue(ordersFile, orderRepo);
+            objectMapper.writeValue(ordersFile, orderRepo.getOrdersData());
         } catch (IOException e) {
             ui.printError("Не удалось сохранить файл заказов. Будет создан новый файл. \n");
         }
@@ -161,7 +161,7 @@ public class FileService implements FileServiceDetails {
 
     public void saveClientsToFile() {
         try {
-            objectMapper.writeValue(clientsFile, clientRepo);
+            objectMapper.writeValue(clientsFile, clientRepo.getClientsData());
         } catch (IOException e) {
             ui.printError(e.getMessage());
         }

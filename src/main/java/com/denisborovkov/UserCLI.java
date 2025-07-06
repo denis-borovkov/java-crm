@@ -4,6 +4,7 @@ import com.denisborovkov.exceptions.ClientNotFoundException;
 import com.denisborovkov.exceptions.OrderNotFoundException;
 import com.denisborovkov.exceptions.OrderRegistrationException;
 import com.denisborovkov.handlers.ClientMenuHandler;
+import com.denisborovkov.handlers.GlobalMenuHandler;
 import com.denisborovkov.handlers.LoginMenuHandler;
 import com.denisborovkov.handlers.OrderMenuHandler;
 import com.denisborovkov.interfaces.*;
@@ -25,6 +26,7 @@ public class UserCLI {
     private final UserServiceDetails userService = new UserService(ui, userRepo);
     private final OrderServiceDetails orderService = new OrderService(ui, orderRepo);
     private final ClientServiceDetails clientService = new ClientService(ui , clientRepo);
+    private final GlobalMenuHandler menuHandler = new GlobalMenuHandler(ui);
     private final LoginMenuHandler login = new LoginMenuHandler(ui, userService);
     private final OrderMenuHandler order = new OrderMenuHandler(ui,clientService, orderService);
     private final ClientMenuHandler client = new ClientMenuHandler(ui, clientService);
@@ -38,18 +40,10 @@ public class UserCLI {
             ui);
 
     public void run() {
-        ui.println("Welcome to User Management System");
         fileService.loadUsersFromFile();
         try {
             while (true) {
-                ui.println("""
-                        === Main Menu ===
-                        1. Register new user
-                        2. Login
-                        3. Exit
-                        Choose an option (1-3):
-                        """);
-
+                menuHandler.showMainMenu();
                 switch (ui.userInput()) {
                     case "1":
                         if (login.signup())
@@ -57,13 +51,7 @@ public class UserCLI {
                         break;
                     case "2":
                         while (login.signin()) {
-                            ui.println("""
-                                     === User Menu ===
-                                     1. Show client menu
-                                     2. Show order menu
-                                     3. Exit
-                                     Choose an option (1-3):
-                                    """);
+                            menuHandler.showUserMenu();
                             switch (ui.userInput()) {
                                 case "1":
                                     client.showClientMenu();
@@ -74,15 +62,15 @@ public class UserCLI {
                                 case "3":
                                      continue;
                                 default:
-                                    ui.println("Invalid option. Please choose 1, 2, or 3.");
+                                    menuHandler.showMenuErrorMessage();
                             }
                         }
                         break;
                     case "3":
-                        ui.println("Goodbye!");
+                        menuHandler.showGoodbyeMessage();
                         return;
                     default:
-                        ui.println("Invalid option. Please choose 1, 2, or 3.");
+                        menuHandler.showMenuErrorMessage();
                 }
             }
         } catch (ClientNotFoundException | OrderRegistrationException | OrderNotFoundException e) {
