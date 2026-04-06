@@ -5,6 +5,7 @@ import com.denisborovkov.javacrm.mapper.CustomerMapper;
 import com.denisborovkov.javacrm.entity.Customer;
 import com.denisborovkov.javacrm.service.CustomerService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,19 +19,19 @@ public class CustomerController {
     private final CustomerMapper customerMapper;
 
     @PostMapping("/create")
-    public CustomerDTO createCustomer(@RequestBody CustomerDTO customerDTO) {
+    public ResponseEntity<CustomerDTO> createCustomer(@RequestBody CustomerDTO customerDTO) {
         Customer customer = customerService.createCustomer(
                 customerDTO.firstName(),
                 customerDTO.lastName(),
                 customerDTO.email());
-        return customerMapper.toDTO(customer);
+        return ResponseEntity.ok().body(customerMapper.toDTO(customer));
     }
 
     @GetMapping("/all")
-    public List<CustomerDTO> getAll() {
-        return customerService.getAllCustomers()
+    public ResponseEntity<List<CustomerDTO>> getAll() {
+        return ResponseEntity.ok().body(customerService.getAllCustomers()
                 .stream()
                 .map(customerMapper::toDTO)
-                .toList();
+                .toList());
     }
 }

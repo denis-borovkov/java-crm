@@ -21,22 +21,22 @@ public class UserController {
     private final UserMapper userMapper;
 
     @GetMapping("/{id}")
-    public UserDTO getById(@PathVariable Long id){
-        return userMapper.toDTO(userService.getUserById(id));
+    public ResponseEntity<UserDTO> getById(@PathVariable Long id){
+        return ResponseEntity.ok().body(userMapper.toDTO(userService.getUserById(id)));
     }
 
     @GetMapping({"/user/{username}"})
-    public UserDTO getByUsername(@PathVariable String username){
+    public ResponseEntity<UserDTO> getByUsername(@PathVariable String username){
         User user = (User) userService.loadUserByUsername(username);
-        return userMapper.toDTO(user);
+        return ResponseEntity.ok().body(userMapper.toDTO(user));
     }
 
     @GetMapping
-    public List<UserDTO> getAll() {
-        return userService.getAllUsers()
+    public ResponseEntity<List<UserDTO>> getAll() {
+        return ResponseEntity.ok().body(userService.getAllUsers()
                 .stream()
                 .map(userMapper::toDTO)
-                .toList();
+                .toList());
     }
 
     @PutMapping("/update/{id}")
@@ -50,12 +50,6 @@ public class UserController {
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<String> deleteById(@PathVariable Long id){
         userService.deleteUserById(id);
-        return ResponseEntity.ok().body("Successfully deleted");
-    }
-
-    @DeleteMapping("/delete/all")
-    public ResponseEntity<String> deleteAll(){
-        userService.deleteAllUsers();
         return ResponseEntity.ok().body("Successfully deleted");
     }
 }

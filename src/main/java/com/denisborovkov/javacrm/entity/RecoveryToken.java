@@ -26,5 +26,6 @@ public class RecoveryToken {
     private String token;
     private String email;
     private boolean isRevoked;
+    private Instant issuedAt;
     private Instant expiryDate;
 }

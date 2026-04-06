@@ -11,4 +11,5 @@ import java.util.Optional;
 public interface RecoveryTokenRepository extends JpaRepository<RecoveryToken, Long> {
     Optional<RecoveryToken> findByToken(String token);
     List<RecoveryToken> findAllByEmail(String email);
+    Optional<RecoveryToken> findTopByEmailOrderByIssuedAtDesc(String email);
 }

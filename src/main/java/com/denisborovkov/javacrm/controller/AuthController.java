@@ -20,18 +20,18 @@ public class AuthController {
     private final TokenService tokenService;
 
     @PostMapping("/signup")
-    public UserDTO signup(@RequestBody @Valid SignupRequest request) {
-        return authService.registerUser(request);
+    public ResponseEntity<UserDTO> signup(@RequestBody @Valid SignupRequest request) {
+        return ResponseEntity.ok().body(authService.registerUser(request));
     }
 
     @PostMapping("/signin")
-    public SigninResponse signin(@RequestBody @Valid SigninRequest request) {
-        return authService.signin(request);
+    public ResponseEntity<SigninResponse> signin(@RequestBody @Valid SigninRequest request) {
+        return ResponseEntity.ok().body(authService.signinUser(request));
     }
 
     @PostMapping("/refresh")
-    public RefreshResponse refresh(@RequestBody @Valid RefreshRequest request) {
-        return tokenService.refreshToken(request);
+    public ResponseEntity<RefreshResponse> refresh(@RequestBody @Valid RefreshRequest request) {
+        return ResponseEntity.ok().body(tokenService.refreshToken(request));
     }
 
     @PostMapping("/logout")
@@ -41,8 +41,8 @@ public class AuthController {
     }
 
     @PostMapping("/forgot")
-    public ForgotResponse forgot(@RequestBody @Valid ForgotRequest request) {
-        return authService.forgot(request);
+    public ResponseEntity<ForgotResponse> forgot(@RequestBody @Valid ForgotRequest request) {
+        return ResponseEntity.ok().body(authService.forgotPassword(request));
     }
 
     @PostMapping("/reset")

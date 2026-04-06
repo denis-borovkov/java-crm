@@ -15,3 +15,7 @@ spring:
     show-sql: true
   thymeleaf:
     check-template-location: false
+app:
+  security:
+    recovery:
+      cooldown: PT15M

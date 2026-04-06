@@ -3,6 +3,7 @@ package com.denisborovkov.javacrm.controller;
 import com.denisborovkov.javacrm.dto.ForgotRequest;
 import com.denisborovkov.javacrm.dto.ForgotResponse;
 import com.denisborovkov.javacrm.dto.ResetPasswordRequest;
+import com.denisborovkov.javacrm.exception.RecoveryTokenRateLimitException;
 import com.denisborovkov.javacrm.security.JwtAuthFilter;
 import com.denisborovkov.javacrm.service.AuthService;
 import com.denisborovkov.javacrm.service.TokenService;
@@ -45,7 +46,7 @@ class AuthControllerTest {
     @Test
     void forgotReturnsRecoveryToken() throws Exception {
         ForgotResponse response = new ForgotResponse("recovery-jwt");
-        when(authService.forgot(any(ForgotRequest.class))).thenReturn(response);
+        when(authService.forgotPassword(any(ForgotRequest.class))).thenReturn(response);
 
         mockMvc.perform(post("/api/v1/auth/forgot")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -53,7 +54,18 @@ class AuthControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.recoveryToken").value("recovery-jwt"));
 
-        verify(authService).forgot(any(ForgotRequest.class));
+        verify(authService).forgotPassword(any(ForgotRequest.class));
+    }
+
+    @Test
+    void forgotReturnsTooManyRequestsWhenCooldownIsActive() throws Exception {
+        when(authService.forgotPassword(any(ForgotRequest.class)))
+                .thenThrow(new RecoveryTokenRateLimitException("Recovery token was issued too recently. Try again later."));
+
+        mockMvc.perform(post("/api/v1/auth/forgot")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(new ForgotRequest("user@example.com"))))
+                .andExpect(status().isTooManyRequests());
     }
 
     @Test

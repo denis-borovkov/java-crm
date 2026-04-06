@@ -24,7 +24,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final TokenService tokenService;
 
-    public SigninResponse signin(SigninRequest request) {
+    public SigninResponse signinUser(SigninRequest request) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.username(),
@@ -57,8 +57,9 @@ public class AuthService {
         return userMapper.toDTO(userService.createAdmin(admin));
     }
 
-    public ForgotResponse forgot(ForgotRequest request) {
-        return new ForgotResponse(tokenService.createRecoveryToken(request.email()));
+    public ForgotResponse forgotPassword(ForgotRequest request) {
+        String recoveryToken = tokenService.createRecoveryToken(request.email());
+        return new ForgotResponse("http://localhost:3000/" + recoveryToken);
     }
 
     public void resetPassword(ResetPasswordRequest request) {

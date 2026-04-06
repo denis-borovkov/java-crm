@@ -5,13 +5,16 @@ import com.denisborovkov.javacrm.dto.RefreshResponse;
 import com.denisborovkov.javacrm.dto.SigninResponse;
 import com.denisborovkov.javacrm.entity.RecoveryToken;
 import com.denisborovkov.javacrm.entity.RefreshToken;
+import com.denisborovkov.javacrm.exception.RecoveryTokenRateLimitException;
 import com.denisborovkov.javacrm.repository.RecoveryTokenRepository;
 import com.denisborovkov.javacrm.repository.RefreshTokenRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -24,6 +27,8 @@ public class TokenService {
     private final RecoveryTokenRepository recoveryTokenRepository;
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
+    @Value("${app.security.recovery.cooldown:PT15M}")
+    private Duration recoveryTokenCooldown;
 
     public SigninResponse issueTokens(UserDetails user) {
         String accessToken = jwtService.generateAccessToken(user);
@@ -42,12 +47,14 @@ public class TokenService {
     }
 
     public String createRecoveryToken(String email) {
+        ensureRecoveryTokenCooldown(email);
         revokeRecoveryTokens(email);
         String token = jwtService.generateRecoveryToken(email);
         RecoveryToken recoveryToken = new RecoveryToken();
         recoveryToken.setToken(token);
         recoveryToken.setEmail(email);
         recoveryToken.setRevoked(false);
+        recoveryToken.setIssuedAt(Instant.now());
         recoveryToken.setExpiryDate(Instant.now().plus(7, ChronoUnit.DAYS));
         recoveryTokenRepository.save(recoveryToken);
         return token;
@@ -102,6 +109,16 @@ public class TokenService {
         recoveryTokenRepository.saveAll(tokens);
     }
 
+    public void ensureRecoveryTokenCooldown(String email) {
+        recoveryTokenRepository.findTopByEmailOrderByIssuedAtDesc(email)
+                .ifPresent(token -> {
+                    Instant nextAllowedIssueTime = token.getIssuedAt().plus(recoveryTokenCooldown);
+                    if (nextAllowedIssueTime.isAfter(Instant.now())) {
+                        throw new RecoveryTokenRateLimitException("Recovery token was issued too recently. Try again later.");
+                    }
+                });
+    }
+
     public void validateRefreshToken(RefreshToken stored, String oldToken) {
         if (stored.isRevoked()) {
             revokeAllUserTokens(stored.getUsername());
@@ -138,6 +155,9 @@ public class TokenService {
         String normalized = token.trim();
         if (normalized.startsWith("Bearer ")) {
             normalized = normalized.substring(7).trim();
+        }
+        if (normalized.startsWith("http://localhost:3000/")) {
+            normalized = normalized.substring(22).trim();
         }
         return normalized;
     }
