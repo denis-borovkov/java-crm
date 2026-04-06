@@ -31,13 +31,24 @@ public class AuthController {
 
     @PostMapping("/refresh")
     public RefreshResponse refresh(@RequestBody @Valid RefreshRequest request) {
-        return tokenService.refresh(request);
+        return tokenService.refreshToken(request);
     }
 
     @PostMapping("/logout")
     public ResponseEntity<String> logout(@RequestBody RefreshRequest request) {
-        tokenService.logout(request);
+        tokenService.logoutRevokeToken(request);
         return ResponseEntity.ok().body("You have been logged out");
+    }
+
+    @PostMapping("/forgot")
+    public ForgotResponse forgot(@RequestBody @Valid ForgotRequest request) {
+        return authService.forgot(request);
+    }
+
+    @PostMapping("/reset")
+    public ResponseEntity<String> reset(@RequestBody @Valid ResetPasswordRequest request) {
+        authService.resetPassword(request);
+        return ResponseEntity.ok().body("Password has been reset");
     }
 
     @GetMapping("/me")

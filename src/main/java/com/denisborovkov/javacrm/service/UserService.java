@@ -12,11 +12,13 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Validated
 public class UserService implements UserDetailsService {
 
     private final UserRepository userRepository;
@@ -36,7 +38,7 @@ public class UserService implements UserDetailsService {
 
     public User getUserById(Long id){
         return userRepository.findById(id).orElseThrow(()
-                ->new UsernameNotFoundException("User not found"));
+                -> new UsernameNotFoundException("User not found"));
     }
 
     public void updatePassword(Long id, String oldPassword, String newPassword) throws PasswordMismatchException {
@@ -45,6 +47,13 @@ public class UserService implements UserDetailsService {
         if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
                 throw new PasswordMismatchException();
         }
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+    }
+
+    public void updatePasswordByEmail(String email, String newPassword) {
+        User user = userRepository.findUserByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + email));
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
     }

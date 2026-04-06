@@ -3,5 +3,5 @@ package com.denisborovkov.javacrm.dto;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
-public record SignupRequest(String username,@NotBlank String password, @Email @NotBlank String email) {
+public record ForgotRequest(@Email @NotBlank String email) {
 }
