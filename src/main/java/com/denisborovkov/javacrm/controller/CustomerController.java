@@ -29,8 +29,8 @@ public class CustomerController {
         return ResponseEntity.ok().body(customerMapper.toDTO(customer));
     }
 
-    @PostMapping("/descripion")
-    public ResponseEntity<CustomerDTO> addDescription (@RequestParam("id") Long id, String description)
+    @PostMapping("/descripion/add/{id}")
+    public ResponseEntity<CustomerDTO> addDescription (@PathVariable Long id, String description)
             throws CustomerNotFoundException {
         Customer customer = customerService.setDescription(id, description);
         return ResponseEntity.ok().body(customerMapper.toDTO(customer));
