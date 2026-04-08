@@ -1,6 +1,6 @@
 package com.denisborovkov.javacrm.service;
 
-import com.denisborovkov.javacrm.entity.RecoveryToken;
+import com.denisborovkov.javacrm.entity.OTToken;
 import com.denisborovkov.javacrm.exception.OneTimeTokenRateLimitException;
 import com.denisborovkov.javacrm.repository.OneTimeTokenRepository;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +27,7 @@ public class JpaOneTimeTokenService implements OneTimeTokenService {
     @NullMarked
     public OneTimeToken generate(GenerateOneTimeTokenRequest request) {
         Instant issuedAt = Instant.now();
-        RecoveryToken token = RecoveryToken.builder()
+        OTToken token = OTToken.builder()
                 .tokenValue(UUID.randomUUID().toString())
                 .email(request.getUsername())
                 .issuedAt(issuedAt)
@@ -72,7 +72,7 @@ public class JpaOneTimeTokenService implements OneTimeTokenService {
 
     public void ensureOneTimeTokenCooldown(String email) {
         oneTimeTokenRepository.findTopByEmailOrderByIssuedAtDesc(email)
-                .map(RecoveryToken::getIssuedAt)
+                .map(OTToken::getIssuedAt)
                 .ifPresent(issuedAt -> {
                     Instant nextAllowedIssueTime = issuedAt.plus(oneTimeTokenCooldown);
                     if (nextAllowedIssueTime.isAfter(Instant.now())) {

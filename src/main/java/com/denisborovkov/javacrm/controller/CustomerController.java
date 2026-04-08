@@ -1,6 +1,8 @@
 package com.denisborovkov.javacrm.controller;
 
+import com.denisborovkov.javacrm.dto.CreateCustomerRequest;
 import com.denisborovkov.javacrm.dto.CustomerDTO;
+import com.denisborovkov.javacrm.exception.CustomerNotFoundException;
 import com.denisborovkov.javacrm.mapper.CustomerMapper;
 import com.denisborovkov.javacrm.entity.Customer;
 import com.denisborovkov.javacrm.service.CustomerService;
@@ -19,15 +21,43 @@ public class CustomerController {
     private final CustomerMapper customerMapper;
 
     @PostMapping("/create")
-    public ResponseEntity<CustomerDTO> createCustomer(@RequestBody CustomerDTO customerDTO) {
+    public ResponseEntity<CustomerDTO> createCustomer(@RequestBody CreateCustomerRequest request) {
         Customer customer = customerService.createCustomer(
-                customerDTO.firstName(),
-                customerDTO.lastName(),
-                customerDTO.email());
+                request.firstName(),
+                request.lastName(),
+                request.email());
         return ResponseEntity.ok().body(customerMapper.toDTO(customer));
     }
 
-    @GetMapping("/all")
+    @PostMapping("/descripion")
+    public ResponseEntity<CustomerDTO> addDescription (@RequestParam("id") Long id, String description)
+            throws CustomerNotFoundException {
+        Customer customer = customerService.setDescription(id, description);
+        return ResponseEntity.ok().body(customerMapper.toDTO(customer));
+    }
+
+    @GetMapping("/description")
+    public ResponseEntity<String> getDescription(@RequestParam(required = false) Long id)
+            throws CustomerNotFoundException {
+        String description = customerService.getDescription(id);
+        return ResponseEntity.ok().body(description);
+    }
+
+    @GetMapping("/id/{id}")
+    public ResponseEntity<CustomerDTO> getCustomerById(@PathVariable Long id)
+            throws CustomerNotFoundException {
+        Customer customer = customerService.getCustomer(id);
+        return ResponseEntity.ok().body(customerMapper.toDTO(customer));
+    }
+
+    @GetMapping("/email/{email}")
+    public ResponseEntity<CustomerDTO> getCustomerByEmail(@PathVariable String email)
+            throws CustomerNotFoundException {
+        Customer customer = customerService.getCustomer(email);
+        return ResponseEntity.ok().body(customerMapper.toDTO(customer));
+    }
+
+    @GetMapping()
     public ResponseEntity<List<CustomerDTO>> getAll() {
         return ResponseEntity.ok().body(customerService.getAllCustomers()
                 .stream()

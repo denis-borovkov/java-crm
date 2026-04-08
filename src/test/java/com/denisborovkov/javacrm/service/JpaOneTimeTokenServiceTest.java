@@ -1,6 +1,6 @@
 package com.denisborovkov.javacrm.service;
 
-import com.denisborovkov.javacrm.entity.RecoveryToken;
+import com.denisborovkov.javacrm.entity.OTToken;
 import com.denisborovkov.javacrm.exception.OneTimeTokenRateLimitException;
 import com.denisborovkov.javacrm.repository.OneTimeTokenRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,7 +36,7 @@ public class JpaOneTimeTokenServiceTest {
 
     @Test
     void createOneTimeTokenRejectsRequestsInsideCooldown() {
-        RecoveryToken latestToken = mock(RecoveryToken.class);
+        OTToken latestToken = mock(OTToken.class);
         when(latestToken.getIssuedAt()).thenReturn(Instant.now().minus(Duration.ofMinutes(1)));
 
         ReflectionTestUtils.setField(jpaOneTimeTokenService, "oneTimeTokenCooldown", Duration.ofMinutes(15));
@@ -52,7 +52,7 @@ public class JpaOneTimeTokenServiceTest {
 
     @Test
     void createOneTimeTokenIssuesTokenAfterCooldown() {
-        RecoveryToken latestToken = mock(RecoveryToken.class);
+        OTToken latestToken = mock(OTToken.class);
         when(latestToken.getIssuedAt()).thenReturn(Instant.now().minus(Duration.ofMinutes(16)));
 
         ReflectionTestUtils.setField(jpaOneTimeTokenService, "oneTimeTokenCooldown", Duration.ofMinutes(15));
@@ -64,12 +64,12 @@ public class JpaOneTimeTokenServiceTest {
 
         assertNotNull(token);
         verify(oneTimeTokenRepository).deleteAllByEmail("user@example.com");
-        verify(oneTimeTokenRepository).save(any(RecoveryToken.class));
+        verify(oneTimeTokenRepository).save(any(OTToken.class));
     }
 
     @Test
     void useOneTimeTokenRevokesTokenAfterSuccessfulUse() {
-        RecoveryToken storedToken = mock(RecoveryToken.class);
+        OTToken storedToken = mock(OTToken.class);
         when(storedToken.getTokenValue()).thenReturn("sample-token");
         when(storedToken.getEmail()).thenReturn("user@example.com");
         when(storedToken.getExpiresAt()).thenReturn(Instant.now().plusSeconds(60));

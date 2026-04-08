@@ -11,12 +11,12 @@ import lombok.Setter;
 import java.time.Instant;
 
 @Entity
+@NoArgsConstructor
+@AllArgsConstructor
 @Getter
 @Setter
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class RecoveryToken {
+public class OTToken {
 
     @Id
     private String tokenValue;

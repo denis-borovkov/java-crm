@@ -7,7 +7,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -15,7 +14,7 @@ public class CustomerService {
 
     private final CustomerRepository customerRepository;
 
-        public Customer createCustomer(String firstName, String lastName, String email) {
+    public Customer createCustomer(String firstName, String lastName, String email) {
         Customer customer = Customer.builder()
                 .firstName(firstName)
                 .lastName(lastName)
@@ -31,14 +30,14 @@ public class CustomerService {
         return customerRepository.save(customer);
     }
 
-    public Optional<String> getDescription(Long id) throws CustomerNotFoundException {
+    public String getDescription(Long id) throws CustomerNotFoundException {
         Customer customer = customerRepository.findById(id).orElseThrow(()
                 -> new CustomerNotFoundException(id));
-        return Optional.ofNullable(customer.getDescription());
+        return customer.getDescription();
     }
 
     public List<Customer> getAllCustomers() {
-        return customerRepository.findAll();
+        return customerRepository.findAll().stream().toList();
     }
 
     public Customer getCustomer(Long id) throws CustomerNotFoundException {
