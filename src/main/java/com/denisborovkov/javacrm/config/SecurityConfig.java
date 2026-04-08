@@ -1,4 +1,4 @@
-package com.denisborovkov.javacrm.security;
+package com.denisborovkov.javacrm.config;
 
 import com.denisborovkov.javacrm.enums.Role;
 import org.springframework.context.annotation.Bean;

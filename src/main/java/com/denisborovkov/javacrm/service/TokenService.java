@@ -4,6 +4,7 @@ import com.denisborovkov.javacrm.dto.RefreshRequest;
 import com.denisborovkov.javacrm.dto.RefreshResponse;
 import com.denisborovkov.javacrm.dto.SigninResponse;
 import com.denisborovkov.javacrm.entity.RefreshToken;
+import com.denisborovkov.javacrm.mapper.RefreshTokenMapper;
 import com.denisborovkov.javacrm.repository.RefreshTokenRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -18,6 +19,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TokenService {
     private final RefreshTokenRepository refreshTokenRepository;
+    private final RefreshTokenMapper refreshTokenMapper;
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
 
@@ -29,11 +31,11 @@ public class TokenService {
     }
 
     public void createRefreshToken(String token, UserDetails user) {
-        RefreshToken refreshToken = new RefreshToken();
-        refreshToken.setToken(token);
-        refreshToken.setEmail(user.getUsername());
-        refreshToken.setRevoked(false);
-        refreshToken.setExpiryDate(Instant.now().plus(7, ChronoUnit.DAYS));
+        RefreshToken refreshToken = refreshTokenMapper.toEntity(
+                token,
+                user.getUsername(),
+                Instant.now().plus(7, ChronoUnit.DAYS)
+        );
         refreshTokenRepository.save(refreshToken);
     }
 

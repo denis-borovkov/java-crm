@@ -2,10 +2,13 @@ package com.denisborovkov.javacrm.controller;
 
 import com.denisborovkov.javacrm.dto.CreateCustomerRequest;
 import com.denisborovkov.javacrm.dto.CustomerDTO;
+import com.denisborovkov.javacrm.dto.UpdateCustomerRequest;
+import com.denisborovkov.javacrm.dto.UpdateCustomerResponse;
 import com.denisborovkov.javacrm.exception.CustomerNotFoundException;
 import com.denisborovkov.javacrm.mapper.CustomerMapper;
 import com.denisborovkov.javacrm.entity.Customer;
 import com.denisborovkov.javacrm.service.CustomerService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,35 +25,18 @@ public class CustomerController {
 
     @PostMapping("/create")
     public ResponseEntity<CustomerDTO> createCustomer(@RequestBody CreateCustomerRequest request) {
-        Customer customer = customerService.createCustomer(
-                request.firstName(),
-                request.lastName(),
-                request.email());
+        Customer customer = customerService.createCustomer(request);
         return ResponseEntity.ok().body(customerMapper.toDTO(customer));
     }
 
-    @PostMapping("/descripion/add/{id}")
-    public ResponseEntity<CustomerDTO> addDescription (@PathVariable Long id, String description)
-            throws CustomerNotFoundException {
-        Customer customer = customerService.setDescription(id, description);
-        return ResponseEntity.ok().body(customerMapper.toDTO(customer));
-    }
-
-    @GetMapping("/description")
-    public ResponseEntity<String> getDescription(@RequestParam(required = false) Long id)
-            throws CustomerNotFoundException {
-        String description = customerService.getDescription(id);
-        return ResponseEntity.ok().body(description);
-    }
-
-    @GetMapping("/id/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<CustomerDTO> getCustomerById(@PathVariable Long id)
             throws CustomerNotFoundException {
         Customer customer = customerService.getCustomer(id);
         return ResponseEntity.ok().body(customerMapper.toDTO(customer));
     }
 
-    @GetMapping("/email/{email}")
+    @GetMapping("/{email}")
     public ResponseEntity<CustomerDTO> getCustomerByEmail(@PathVariable String email)
             throws CustomerNotFoundException {
         Customer customer = customerService.getCustomer(email);
@@ -63,5 +49,21 @@ public class CustomerController {
                 .stream()
                 .map(customerMapper::toDTO)
                 .toList());
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<UpdateCustomerResponse> updateCustomer(
+            @PathVariable Long id,
+            @Valid @RequestBody UpdateCustomerRequest request)
+            throws CustomerNotFoundException {
+        Customer updatedCustomer = customerService.updateCustomer(id, request);
+        return ResponseEntity.ok().body(customerMapper.toUpdateResponse(updatedCustomer));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteById(@PathVariable Long id)
+            throws CustomerNotFoundException {
+        customerService.deleteCustomerById(id);
+        return ResponseEntity.ok().body("Successfully deleted");
     }
 }

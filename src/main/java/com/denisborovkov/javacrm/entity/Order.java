@@ -1,5 +1,6 @@
 package com.denisborovkov.javacrm.entity;
 
+import com.denisborovkov.javacrm.abstraction.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -9,8 +10,7 @@ import lombok.*;
 @NoArgsConstructor
 @Getter
 @Setter
-@Builder
-public class Order {
+public class Order extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

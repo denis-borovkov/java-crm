@@ -22,7 +22,8 @@ public class UserController {
 
     @GetMapping("/{id}")
     public ResponseEntity<UserDTO> getById(@PathVariable Long id){
-        return ResponseEntity.ok().body(userMapper.toDTO(userService.getUserById(id)));
+        User user = userService.getUserById(id);
+        return ResponseEntity.ok().body(userMapper.toDTO(user));
     }
 
     @GetMapping({"/user/{username}"})
@@ -40,16 +41,11 @@ public class UserController {
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<String> update(@RequestBody UpdatePasswordRequest request) throws PasswordMismatchException {
+    public ResponseEntity<String> updatePassword(@RequestBody UpdatePasswordRequest request)
+            throws PasswordMismatchException {
         userService.changePassword(request.id(),
                 request.oldPassword(),
                 request.newPassword());
         return ResponseEntity.ok().body("Successfully updated");
-    }
-
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<String> deleteById(@PathVariable Long id){
-        userService.deleteUserById(id);
-        return ResponseEntity.ok().body("Successfully deleted");
     }
 }

@@ -1,5 +1,7 @@
 package com.denisborovkov.javacrm.entity;
 
+import com.denisborovkov.javacrm.abstraction.BaseEntity;
+import com.denisborovkov.javacrm.enums.Status;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -9,8 +11,7 @@ import lombok.*;
 @AllArgsConstructor
 @Getter
 @Setter
-@Builder
-public class Customer {
+public class Customer extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,4 +21,6 @@ public class Customer {
     private String email;
     private String phoneNumber;
     private String description;
+    @Enumerated(EnumType.STRING)
+    private Status status;
 }

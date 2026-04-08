@@ -2,6 +2,7 @@ package com.denisborovkov.javacrm.service;
 
 import com.denisborovkov.javacrm.entity.OTToken;
 import com.denisborovkov.javacrm.exception.OneTimeTokenRateLimitException;
+import com.denisborovkov.javacrm.mapper.OneTimeTokenMapper;
 import com.denisborovkov.javacrm.repository.OneTimeTokenRepository;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NullMarked;
@@ -18,7 +19,8 @@ import java.util.UUID;
 public class JpaOneTimeTokenService implements OneTimeTokenService {
 
     private final OneTimeTokenRepository oneTimeTokenRepository;
-    @Value("${app.security.recovery.cooldown:PT2M}")
+    private final OneTimeTokenMapper oneTimeTokenMapper;
+    @Value("${app.security.recovery.cooldown:PT1M}")
     private Duration oneTimeTokenCooldown;
     @Value("${app.security.recovery.ttl:PT15M}")
     private Duration oneTimeTokenTtl;
@@ -27,12 +29,12 @@ public class JpaOneTimeTokenService implements OneTimeTokenService {
     @NullMarked
     public OneTimeToken generate(GenerateOneTimeTokenRequest request) {
         Instant issuedAt = Instant.now();
-        OTToken token = OTToken.builder()
-                .tokenValue(UUID.randomUUID().toString())
-                .email(request.getUsername())
-                .issuedAt(issuedAt)
-                .expiresAt(issuedAt.plus(request.getExpiresIn()))
-                .build();
+        OTToken token = oneTimeTokenMapper.toEntity(
+                UUID.randomUUID().toString(),
+                request.getUsername(),
+                issuedAt,
+                issuedAt.plus(request.getExpiresIn())
+        );
         oneTimeTokenRepository.save(token);
         return new DefaultOneTimeToken(token.getTokenValue(), token.getEmail(), token.getExpiresAt());
     }

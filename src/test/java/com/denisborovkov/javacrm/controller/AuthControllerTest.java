@@ -116,6 +116,26 @@ class AuthControllerTest {
                     User user = invocation.getArgument(0, User.class);
                     return new UserDTO(user.getEmail(), user.getRole().name());
                 });
+        when(userMapper.toUserEntity(any(), any()))
+                .thenAnswer(invocation -> {
+                    com.denisborovkov.javacrm.dto.SignupRequest request = invocation.getArgument(0);
+                    PasswordEncoder encoder = invocation.getArgument(1);
+                    User user = new User();
+                    user.setEmail(request.email());
+                    user.setPassword(encoder.encode(request.password()));
+                    user.setRole(Role.USER);
+                    return user;
+                });
+        when(userMapper.toAdminEntity(any(), any()))
+                .thenAnswer(invocation -> {
+                    com.denisborovkov.javacrm.dto.CreateAdminRequest request = invocation.getArgument(0);
+                    PasswordEncoder encoder = invocation.getArgument(1);
+                    User user = new User();
+                    user.setEmail(request.email());
+                    user.setPassword(encoder.encode(request.password()));
+                    user.setRole(Role.ADMIN);
+                    return user;
+                });
 
         when(refreshTokenRepository.save(any(RefreshToken.class)))
                 .thenAnswer(invocation -> {
@@ -147,12 +167,16 @@ class AuthControllerTest {
                     return token;
                 });
         when(oneTimeTokenRepository.findById(anyString()))
-                .thenAnswer(invocation -> Optional.ofNullable(oneTimeTokens.get(invocation.getArgument(0, String.class))));
+                .thenAnswer(invocation
+                        -> Optional.ofNullable(oneTimeTokens.get(invocation.getArgument(0, String.class))));
         when(oneTimeTokenRepository.findTopByEmailOrderByIssuedAtDesc(anyString()))
-                .thenAnswer(invocation -> oneTimeTokens.values().stream()
-                        .filter(token -> token.getEmail().equals(normalizeEmail(invocation.getArgument(0, String.class))))
+                .thenAnswer(invocation
+                        -> oneTimeTokens.values().stream()
+                        .filter(token
+                                -> token.getEmail().equals(normalizeEmail(invocation.getArgument(0, String.class))))
                         .max(Comparator.comparing(OTToken::getIssuedAt)));
-        lenient().doAnswer(invocation -> {
+        lenient().doAnswer(invocation
+                -> {
             oneTimeTokens.remove(invocation.getArgument(0, OTToken.class).getTokenValue());
             return null;
         }).when(oneTimeTokenRepository).delete(any(OTToken.class));
@@ -300,11 +324,10 @@ class AuthControllerTest {
     }
 
     private User seedUser(String email, String rawPassword) {
-        User user = User.builder()
-                .email(normalizeEmail(email))
-                .password(passwordEncoder.encode(rawPassword))
-                .role(Role.USER)
-                .build();
+        User user = new User();
+        user.setEmail(normalizeEmail(email));
+        user.setPassword(passwordEncoder.encode(rawPassword));
+        user.setRole(Role.USER);
         usersByEmail.put(user.getEmail(), user);
         user.setId(userIds.getAndIncrement());
         return user;

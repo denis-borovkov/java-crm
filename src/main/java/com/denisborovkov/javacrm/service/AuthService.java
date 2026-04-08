@@ -36,16 +36,12 @@ public class AuthService {
 
     public UserDTO registerUser(SignupRequest request) {
         validateSignup(request);
-        User user = userService.createUser(
-                request.email(),
-                request.password());
+        User user = userService.createUser(request);
         return userMapper.toDTO(user);
     }
 
     public UserDTO registerAdmin(CreateAdminRequest request) {
-        User admin = userService.createAdmin(
-                request.email(),
-                request.password());
+        User admin = userService.createAdmin(request);
         return userMapper.toDTO(admin);
     }
 

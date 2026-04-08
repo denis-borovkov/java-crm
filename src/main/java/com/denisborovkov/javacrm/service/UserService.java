@@ -1,8 +1,10 @@
 package com.denisborovkov.javacrm.service;
 
-import com.denisborovkov.javacrm.enums.Role;
+import com.denisborovkov.javacrm.dto.CreateAdminRequest;
+import com.denisborovkov.javacrm.dto.SignupRequest;
 import com.denisborovkov.javacrm.exception.PasswordMismatchException;
 import com.denisborovkov.javacrm.entity.User;
+import com.denisborovkov.javacrm.mapper.UserMapper;
 import com.denisborovkov.javacrm.repository.UserRepository;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -24,23 +26,14 @@ public class UserService implements UserDetailsService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final UserMapper userMapper;
 
-    public User createUser(String email, String password) {
-        User user = User.builder()
-                .email(email)
-                .password(passwordEncoder.encode(password))
-                .role(Role.USER)
-                .build();
-        return userRepository.save(user);
+    public User createUser(SignupRequest request) {
+        return userRepository.save(userMapper.toUserEntity(request, passwordEncoder));
     }
 
-    public User createAdmin(String email, String password) {
-        User admin = User.builder()
-                .email(email)
-                .password(passwordEncoder.encode(password))
-                .role(Role.ADMIN)
-                .build();
-        return userRepository.save(admin);
+    public User createAdmin(CreateAdminRequest request) {
+        return userRepository.save(userMapper.toAdminEntity(request, passwordEncoder));
     }
 
     public List<User> getAllUsers() {

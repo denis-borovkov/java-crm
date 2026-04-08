@@ -24,6 +24,13 @@ public class AdminController {
         return ResponseEntity.ok().body(authService.registerAdmin(request));
     }
 
+    @DeleteMapping("/delete/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<String> deleteById(@PathVariable Long id){
+        userService.deleteUserById(id);
+        return ResponseEntity.ok().body("Successfully deleted");
+    }
+
     @DeleteMapping("/delete/all")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> deleteAll(){

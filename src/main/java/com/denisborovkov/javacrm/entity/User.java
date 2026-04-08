@@ -1,5 +1,6 @@
 package com.denisborovkov.javacrm.entity;
 
+import com.denisborovkov.javacrm.abstraction.BaseEntity;
 import com.denisborovkov.javacrm.enums.CompanyRole;
 import com.denisborovkov.javacrm.enums.Role;
 import jakarta.persistence.*;
@@ -18,8 +19,7 @@ import java.util.Locale;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class User implements UserDetails {
+public class User extends BaseEntity implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

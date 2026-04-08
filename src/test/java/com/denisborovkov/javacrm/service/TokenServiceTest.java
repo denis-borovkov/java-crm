@@ -3,6 +3,7 @@ package com.denisborovkov.javacrm.service;
 import com.denisborovkov.javacrm.dto.RefreshRequest;
 import com.denisborovkov.javacrm.dto.RefreshResponse;
 import com.denisborovkov.javacrm.entity.RefreshToken;
+import com.denisborovkov.javacrm.mapper.RefreshTokenMapper;
 import com.denisborovkov.javacrm.repository.RefreshTokenRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -36,6 +37,9 @@ class TokenServiceTest {
     private JwtService jwtService;
 
     @Mock
+    private RefreshTokenMapper refreshTokenMapper;
+
+    @Mock
     private UserDetailsService userDetailsService;
 
     @InjectMocks
@@ -62,6 +66,13 @@ class TokenServiceTest {
         when(userDetailsService.loadUserByUsername(user.getUsername())).thenReturn(user);
         when(jwtService.generateAccessToken(user)).thenReturn(newAccessToken);
         when(jwtService.generateRefreshToken(user)).thenReturn(newRefreshToken);
+        when(refreshTokenMapper.toEntity(any(), any(), any()))
+                .thenAnswer(invocation -> RefreshToken.builder()
+                        .token(invocation.getArgument(0, String.class))
+                        .email(invocation.getArgument(1, String.class))
+                        .expiryDate(invocation.getArgument(2, Instant.class))
+                        .revoked(false)
+                        .build());
         when(refreshTokenRepository.save(any(RefreshToken.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         RefreshResponse response = tokenService.refreshToken(new RefreshRequest(oldTokenValue));

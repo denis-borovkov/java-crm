@@ -16,5 +16,5 @@ spring:
 app:
   security:
     recovery:
-      cooldown: PT2M
+      cooldown: PT1M
       ttl: PT15M

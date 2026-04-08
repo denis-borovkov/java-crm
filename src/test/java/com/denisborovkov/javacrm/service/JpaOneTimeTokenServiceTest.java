@@ -2,6 +2,7 @@ package com.denisborovkov.javacrm.service;
 
 import com.denisborovkov.javacrm.entity.OTToken;
 import com.denisborovkov.javacrm.exception.OneTimeTokenRateLimitException;
+import com.denisborovkov.javacrm.mapper.OneTimeTokenMapper;
 import com.denisborovkov.javacrm.repository.OneTimeTokenRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,11 +28,13 @@ public class JpaOneTimeTokenServiceTest {
 
     @Mock
     private OneTimeTokenRepository oneTimeTokenRepository;
+    @Mock
+    private OneTimeTokenMapper oneTimeTokenMapper;
     private JpaOneTimeTokenService jpaOneTimeTokenService;
 
     @BeforeEach
     void setUp() {
-        this.jpaOneTimeTokenService = new JpaOneTimeTokenService(oneTimeTokenRepository);
+        this.jpaOneTimeTokenService = new JpaOneTimeTokenService(oneTimeTokenRepository, oneTimeTokenMapper);
     }
 
     @Test
@@ -59,6 +62,13 @@ public class JpaOneTimeTokenServiceTest {
         ReflectionTestUtils.setField(jpaOneTimeTokenService, "oneTimeTokenTtl", Duration.ofMinutes(15));
         when(oneTimeTokenRepository.findTopByEmailOrderByIssuedAtDesc("user@example.com"))
                 .thenReturn(Optional.of(latestToken));
+        when(oneTimeTokenMapper.toEntity(any(), any(), any(), any()))
+                .thenAnswer(invocation -> OTToken.builder()
+                        .tokenValue(invocation.getArgument(0, String.class))
+                        .email(invocation.getArgument(1, String.class))
+                        .issuedAt(invocation.getArgument(2, Instant.class))
+                        .expiresAt(invocation.getArgument(3, Instant.class))
+                        .build());
 
         String token = jpaOneTimeTokenService.createOneTimeToken("user@example.com");
 
