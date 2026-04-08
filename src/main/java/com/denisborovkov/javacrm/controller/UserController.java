@@ -41,7 +41,7 @@ public class UserController {
 
     @PutMapping("/update/{id}")
     public ResponseEntity<String> update(@RequestBody UpdatePasswordRequest request) throws PasswordMismatchException {
-        userService.updatePassword(request.id(),
+        userService.changePassword(request.id(),
                 request.oldPassword(),
                 request.newPassword());
         return ResponseEntity.ok().body("Successfully updated");

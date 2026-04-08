@@ -3,18 +3,13 @@ package com.denisborovkov.javacrm.service;
 import com.denisborovkov.javacrm.dto.RefreshRequest;
 import com.denisborovkov.javacrm.dto.RefreshResponse;
 import com.denisborovkov.javacrm.dto.SigninResponse;
-import com.denisborovkov.javacrm.entity.RecoveryToken;
 import com.denisborovkov.javacrm.entity.RefreshToken;
-import com.denisborovkov.javacrm.exception.RecoveryTokenRateLimitException;
-import com.denisborovkov.javacrm.repository.RecoveryTokenRepository;
 import com.denisborovkov.javacrm.repository.RefreshTokenRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 
-import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -22,13 +17,9 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class TokenService {
-
     private final RefreshTokenRepository refreshTokenRepository;
-    private final RecoveryTokenRepository recoveryTokenRepository;
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
-    @Value("${app.security.recovery.cooldown:PT15M}")
-    private Duration recoveryTokenCooldown;
 
     public SigninResponse issueTokens(UserDetails user) {
         String accessToken = jwtService.generateAccessToken(user);
@@ -40,24 +31,10 @@ public class TokenService {
     public void createRefreshToken(String token, UserDetails user) {
         RefreshToken refreshToken = new RefreshToken();
         refreshToken.setToken(token);
-        refreshToken.setUsername(user.getUsername());
+        refreshToken.setEmail(user.getUsername());
         refreshToken.setRevoked(false);
         refreshToken.setExpiryDate(Instant.now().plus(7, ChronoUnit.DAYS));
         refreshTokenRepository.save(refreshToken);
-    }
-
-    public String createRecoveryToken(String email) {
-        ensureRecoveryTokenCooldown(email);
-        revokeRecoveryTokens(email);
-        String token = jwtService.generateRecoveryToken(email);
-        RecoveryToken recoveryToken = new RecoveryToken();
-        recoveryToken.setToken(token);
-        recoveryToken.setEmail(email);
-        recoveryToken.setRevoked(false);
-        recoveryToken.setIssuedAt(Instant.now());
-        recoveryToken.setExpiryDate(Instant.now().plus(7, ChronoUnit.DAYS));
-        recoveryTokenRepository.save(recoveryToken);
-        return token;
     }
 
     public RefreshResponse refreshToken(RefreshRequest request) {
@@ -69,20 +46,9 @@ public class TokenService {
         stored.setRevoked(true);
         refreshTokenRepository.save(stored);
 
-        UserDetails user = userDetailsService.loadUserByUsername(stored.getUsername());
+        UserDetails user = userDetailsService.loadUserByUsername(stored.getEmail());
         SigninResponse tokens = issueTokens(user);
         return new RefreshResponse(tokens.accessToken(), tokens.refreshToken());
-    }
-
-    public String useRecoveryToken(String rawToken) {
-        String normalizedToken = normalizeToken(rawToken);
-        RecoveryToken recoveryToken = recoveryTokenRepository.findByToken(normalizedToken)
-                .orElseThrow(() -> new RuntimeException("Recovery token not found"));
-
-        validateRecoveryToken(recoveryToken, normalizedToken);
-        recoveryToken.setRevoked(true);
-        recoveryTokenRepository.save(recoveryToken);
-        return recoveryToken.getEmail();
     }
 
     public void logoutRevokeToken(RefreshRequest request) {
@@ -94,34 +60,16 @@ public class TokenService {
     }
 
     public void revokeAllUserTokens(String username) {
-        List<RefreshToken> tokens = refreshTokenRepository.findAllByUsername(username);
+        List<RefreshToken> tokens = refreshTokenRepository.findAllByEmail(username);
         for (RefreshToken token : tokens) {
             token.setRevoked(true);
         }
         refreshTokenRepository.saveAll(tokens);
     }
 
-    public void revokeRecoveryTokens(String email) {
-        List<RecoveryToken> tokens = recoveryTokenRepository.findAllByEmail(email);
-        for (RecoveryToken token : tokens) {
-            token.setRevoked(true);
-        }
-        recoveryTokenRepository.saveAll(tokens);
-    }
-
-    public void ensureRecoveryTokenCooldown(String email) {
-        recoveryTokenRepository.findTopByEmailOrderByIssuedAtDesc(email)
-                .ifPresent(token -> {
-                    Instant nextAllowedIssueTime = token.getIssuedAt().plus(recoveryTokenCooldown);
-                    if (nextAllowedIssueTime.isAfter(Instant.now())) {
-                        throw new RecoveryTokenRateLimitException("Recovery token was issued too recently. Try again later.");
-                    }
-                });
-    }
-
     public void validateRefreshToken(RefreshToken stored, String oldToken) {
         if (stored.isRevoked()) {
-            revokeAllUserTokens(stored.getUsername());
+            revokeAllUserTokens(stored.getEmail());
             throw  new RuntimeException("Token is already revoked");
         }
         if (stored.getExpiryDate().isBefore(Instant.now())) {
@@ -132,22 +80,6 @@ public class TokenService {
         }
     }
 
-    private void validateRecoveryToken(RecoveryToken recoveryToken, String rawToken) {
-        if (recoveryToken.isRevoked()) {
-            throw new RuntimeException("Recovery token is already used");
-        }
-        if (recoveryToken.getExpiryDate().isBefore(Instant.now())) {
-            throw new RuntimeException("Recovery token is expired");
-        }
-        if (!jwtService.isRecoveryToken(rawToken)) {
-            throw new RuntimeException("Token is not a recovery token");
-        }
-        String email = jwtService.extractUsername(rawToken);
-        if (!recoveryToken.getEmail().equals(email)) {
-            throw new RuntimeException("Recovery token does not match user");
-        }
-    }
-
     public String normalizeToken(String token) {
         if (token == null) {
             throw new RuntimeException("Refresh token is required");
@@ -155,9 +87,6 @@ public class TokenService {
         String normalized = token.trim();
         if (normalized.startsWith("Bearer ")) {
             normalized = normalized.substring(7).trim();
-        }
-        if (normalized.startsWith("http://localhost:3000/")) {
-            normalized = normalized.substring(22).trim();
         }
         return normalized;
     }

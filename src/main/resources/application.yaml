@@ -13,9 +13,8 @@ spring:
       ddl-auto: update
     open-in-view: true
     show-sql: true
-  thymeleaf:
-    check-template-location: false
 app:
   security:
     recovery:
-      cooldown: PT15M
+      cooldown: PT2M
+      ttl: PT15M

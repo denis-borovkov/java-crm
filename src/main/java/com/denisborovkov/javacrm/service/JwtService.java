@@ -38,16 +38,6 @@ public class JwtService {
                 .compact();
     }
 
-    public String generateRecoveryToken(String email) {
-        return Jwts.builder()
-                .subject(email)
-                .claim("type", "recovery")
-                .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 15))
-                .signWith(getKey())
-                .compact();
-    }
-
     public String extractUsername(String token) {
         return getClaims(token).getSubject();
     }
@@ -59,10 +49,6 @@ public class JwtService {
 
     public boolean isRefreshToken(String token) {
         return "refresh".equals(getClaims(token).get("type"));
-    }
-
-    public boolean isRecoveryToken(String token) {
-        return "recovery".equals(getClaims(token).get("type"));
     }
 
     private boolean isExpired(String token) {

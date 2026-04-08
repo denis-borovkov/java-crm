@@ -4,9 +4,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(HttpStatus.TOO_MANY_REQUESTS)
-public class RecoveryTokenRateLimitException extends RuntimeException {
+public class OneTimeTokenRateLimitException extends RuntimeException {
 
-    public RecoveryTokenRateLimitException(String message) {
+    public OneTimeTokenRateLimitException(String message) {
         super(message);
     }
 }

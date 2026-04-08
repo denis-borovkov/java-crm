@@ -1,5 +1,6 @@
 package com.denisborovkov.javacrm.service;
 
+import com.denisborovkov.javacrm.enums.Role;
 import com.denisborovkov.javacrm.exception.PasswordMismatchException;
 import com.denisborovkov.javacrm.entity.User;
 import com.denisborovkov.javacrm.repository.UserRepository;
@@ -24,12 +25,22 @@ public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public User createUser(User user) {
+    public User createUser(String email, String password) {
+        User user = User.builder()
+                .email(email)
+                .password(passwordEncoder.encode(password))
+                .role(Role.USER)
+                .build();
         return userRepository.save(user);
     }
 
-    public User createAdmin(User user) {
-        return userRepository.save(user);
+    public User createAdmin(String email, String password) {
+        User admin = User.builder()
+                .email(email)
+                .password(passwordEncoder.encode(password))
+                .role(Role.ADMIN)
+                .build();
+        return userRepository.save(admin);
     }
 
     public List<User> getAllUsers() {
@@ -41,7 +52,7 @@ public class UserService implements UserDetailsService {
                 -> new UsernameNotFoundException("User not found"));
     }
 
-    public void updatePassword(Long id, String oldPassword, String newPassword) throws PasswordMismatchException {
+    public void changePassword(Long id, String oldPassword, String newPassword) throws PasswordMismatchException {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + id));
         if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
@@ -60,9 +71,9 @@ public class UserService implements UserDetailsService {
 
     @Override
     @NullMarked
-    public UserDetails loadUserByUsername(String username) {
-        User user = userRepository.findUsersByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+    public UserDetails loadUserByUsername(String email) {
+        User user = userRepository.findUsersByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + email));
 
         return org.springframework.security.core.userdetails.User
                 .withUsername(user.getUsername())
@@ -81,12 +92,7 @@ public class UserService implements UserDetailsService {
         userRepository.deleteAll();
     }
 
-    public boolean existsUserByUsername(String username) {
-        return userRepository.existsByUsername(username);
-    }
-
     public boolean existsUserByEmail(@Email @NotBlank String email) {
         return userRepository.existsByEmail(email);
     }
-
 }

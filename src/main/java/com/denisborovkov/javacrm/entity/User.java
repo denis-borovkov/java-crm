@@ -1,13 +1,16 @@
 package com.denisborovkov.javacrm.entity;
 
+import com.denisborovkov.javacrm.enums.CompanyRole;
 import com.denisborovkov.javacrm.enums.Role;
 import jakarta.persistence.*;
 import lombok.*;
+import org.jspecify.annotations.NullMarked;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 
 @Entity
 @Table(name = "users")
@@ -21,13 +24,21 @@ public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(unique = true)
-    private String username;
+    private String firstName;
+    private String lastName;
     @Column(unique = true)
     private String email;
     private String password;
     @Enumerated(EnumType.STRING)
     private Role role;
+    @Enumerated(EnumType.STRING)
+    private CompanyRole companyRole;
+
+    @Override
+    @NullMarked
+    public String getUsername() {
+        return email.toLowerCase(Locale.ENGLISH);
+    }
 
     @Override
     @NonNull

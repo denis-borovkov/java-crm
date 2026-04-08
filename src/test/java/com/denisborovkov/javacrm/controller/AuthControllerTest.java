@@ -3,7 +3,7 @@ package com.denisborovkov.javacrm.controller;
 import com.denisborovkov.javacrm.dto.ForgotRequest;
 import com.denisborovkov.javacrm.dto.ForgotResponse;
 import com.denisborovkov.javacrm.dto.ResetPasswordRequest;
-import com.denisborovkov.javacrm.exception.RecoveryTokenRateLimitException;
+import com.denisborovkov.javacrm.exception.OneTimeTokenRateLimitException;
 import com.denisborovkov.javacrm.security.JwtAuthFilter;
 import com.denisborovkov.javacrm.service.AuthService;
 import com.denisborovkov.javacrm.service.TokenService;
@@ -44,15 +44,15 @@ class AuthControllerTest {
     private JwtAuthFilter jwtAuthFilter;
 
     @Test
-    void forgotReturnsRecoveryToken() throws Exception {
-        ForgotResponse response = new ForgotResponse("recovery-jwt");
+    void forgotReturnsOneTimeToken() throws Exception {
+        ForgotResponse response = new ForgotResponse("one-time-token");
         when(authService.forgotPassword(any(ForgotRequest.class))).thenReturn(response);
 
         mockMvc.perform(post("/api/v1/auth/forgot")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(new ForgotRequest("user@example.com"))))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.recoveryToken").value("recovery-jwt"));
+                .andExpect(jsonPath("$.oneTimeToken").value("one-time-token"));
 
         verify(authService).forgotPassword(any(ForgotRequest.class));
     }
@@ -60,7 +60,7 @@ class AuthControllerTest {
     @Test
     void forgotReturnsTooManyRequestsWhenCooldownIsActive() throws Exception {
         when(authService.forgotPassword(any(ForgotRequest.class)))
-                .thenThrow(new RecoveryTokenRateLimitException("Recovery token was issued too recently. Try again later."));
+                .thenThrow(new OneTimeTokenRateLimitException("Recovery token was issued too recently. Try again later."));
 
         mockMvc.perform(post("/api/v1/auth/forgot")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -70,7 +70,7 @@ class AuthControllerTest {
 
     @Test
     void resetReturnsSuccessMessage() throws Exception {
-        ResetPasswordRequest request = new ResetPasswordRequest("recovery-jwt", "new-password");
+        ResetPasswordRequest request = new ResetPasswordRequest("one-time-token", "new-password");
         doNothing().when(authService).resetPassword(any(ResetPasswordRequest.class));
 
         mockMvc.perform(post("/api/v1/auth/reset")
