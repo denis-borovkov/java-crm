@@ -9,7 +9,6 @@ import org.mapstruct.*;
 
 @Mapper(componentModel = "spring")
 public interface CustomerMapper {
-    @Mapping(target = "id", source = "customerId")
     CustomerDTO toDTO(Customer customer);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)

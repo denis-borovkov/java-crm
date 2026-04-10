@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -39,6 +40,7 @@ public class TokenService {
         refreshTokenRepository.save(refreshToken);
     }
 
+    @Transactional
     public RefreshResponse refreshToken(RefreshRequest request) {
         String oldToken = normalizeToken(request.refreshToken());
         RefreshToken stored = refreshTokenRepository.findByToken(oldToken)
@@ -53,6 +55,7 @@ public class TokenService {
         return new RefreshResponse(tokens.accessToken(), tokens.refreshToken());
     }
 
+    @Transactional
     public void logoutRevokeToken(RefreshRequest request) {
         refreshTokenRepository.findByToken(normalizeToken(request.refreshToken()))
                 .ifPresent(token -> {

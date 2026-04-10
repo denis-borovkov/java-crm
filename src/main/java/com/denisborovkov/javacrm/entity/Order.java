@@ -20,8 +20,4 @@ public class Order extends BaseEntity {
     private String customerEmail;
     private String customerPhone;
     private String status;
-
-    @ManyToOne
-    @JoinColumn(name = "customer_id")
-    private Customer customer;
 }

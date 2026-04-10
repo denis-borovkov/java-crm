@@ -2,12 +2,13 @@ package com.denisborovkov.javacrm.controller;
 
 import com.denisborovkov.javacrm.dto.UpdatePasswordRequest;
 import com.denisborovkov.javacrm.dto.UserDTO;
+import com.denisborovkov.javacrm.entity.UserEntity;
 import com.denisborovkov.javacrm.exception.PasswordMismatchException;
 import com.denisborovkov.javacrm.mapper.UserMapper;
-import com.denisborovkov.javacrm.entity.User;
 import com.denisborovkov.javacrm.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,14 +23,14 @@ public class UserController {
 
     @GetMapping("/{id}")
     public ResponseEntity<UserDTO> getById(@PathVariable Long id){
-        User user = userService.getUserById(id);
-        return ResponseEntity.ok().body(userMapper.toDTO(user));
+        UserEntity userEntity = userService.getUserById(id);
+        return ResponseEntity.ok().body(userMapper.toDTO(userEntity));
     }
 
     @GetMapping({"/user/{username}"})
     public ResponseEntity<UserDTO> getByUsername(@PathVariable String username){
-        User user = (User) userService.loadUserByUsername(username);
-        return ResponseEntity.ok().body(userMapper.toDTO(user));
+        UserDetails userEntity = userService.loadUserByUsername(username);
+        return ResponseEntity.ok().body(userMapper.toDTO(userEntity));
     }
 
     @GetMapping

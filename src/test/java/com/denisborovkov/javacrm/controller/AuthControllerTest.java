@@ -1,9 +1,11 @@
 package com.denisborovkov.javacrm.controller;
 
+import com.denisborovkov.javacrm.dto.CreateAdminRequest;
+import com.denisborovkov.javacrm.dto.SignupRequest;
 import com.denisborovkov.javacrm.dto.UserDTO;
 import com.denisborovkov.javacrm.entity.OTToken;
 import com.denisborovkov.javacrm.entity.RefreshToken;
-import com.denisborovkov.javacrm.entity.User;
+import com.denisborovkov.javacrm.entity.UserEntity;
 import com.denisborovkov.javacrm.enums.Role;
 import com.denisborovkov.javacrm.mapper.CustomerMapper;
 import com.denisborovkov.javacrm.mapper.UserMapper;
@@ -78,7 +80,7 @@ class AuthControllerTest {
     @MockitoBean
     private CustomerMapper customerMapper;
 
-    private Map<String, User> usersByEmail;
+    private Map<String, UserEntity> usersByEmail;
     private Map<String, RefreshToken> refreshTokens;
     private Map<String, OTToken> oneTimeTokens;
     private AtomicLong userIds;
@@ -92,49 +94,47 @@ class AuthControllerTest {
 
         when(userRepository.existsByEmail(anyString()))
                 .thenAnswer(invocation -> usersByEmail.containsKey(normalizeEmail(invocation.getArgument(0, String.class))));
-        when(userRepository.save(any(User.class)))
+        when(userRepository.save(any(UserEntity.class)))
                 .thenAnswer(invocation -> {
-                    User user = invocation.getArgument(0, User.class);
-                    if (user.getId() == null) {
-                        user.setId(userIds.getAndIncrement());
+                    UserEntity userEntity = invocation.getArgument(0, UserEntity.class);
+                    if (userEntity.getId() == null) {
+                        userEntity.setId(userIds.getAndIncrement());
                     }
-                    usersByEmail.put(normalizeEmail(user.getEmail()), user);
-                    return user;
+                    usersByEmail.put(normalizeEmail(userEntity.getEmail()), userEntity);
+                    return userEntity;
                 });
-        when(userRepository.findUsersByEmail(anyString()))
+        when(userRepository.findUserByEmail(anyString()))
                 .thenAnswer(invocation -> Optional.ofNullable(usersByEmail.get(normalizeEmail(invocation.getArgument(0, String.class)))));
         when(userRepository.findUserByEmail(anyString()))
                 .thenAnswer(invocation -> Optional.ofNullable(usersByEmail.get(normalizeEmail(invocation.getArgument(0, String.class)))));
         when(userRepository.findById(anyLong()))
                 .thenAnswer(invocation -> usersByEmail.values().stream()
-                        .filter(user -> user.getId().equals(invocation.getArgument(0, Long.class)))
+                        .filter(userEntity -> userEntity.getId().equals(invocation.getArgument(0, Long.class)))
                         .findFirst());
         lenient().when(userRepository.findAll()).thenAnswer(invocation -> new ArrayList<>(usersByEmail.values()));
 
-        when(userMapper.toDTO(any(User.class)))
+        when(userMapper.toDTO(any(UserEntity.class)))
                 .thenAnswer(invocation -> {
-                    User user = invocation.getArgument(0, User.class);
-                    return new UserDTO(user.getEmail(), user.getRole().name());
+                    UserEntity userEntity = invocation.getArgument(0, UserEntity.class);
+                    return new UserDTO(userEntity.getEmail(), userEntity.getRole().name());
                 });
-        when(userMapper.toUserEntity(any(), any()))
+        when(userMapper.toEntity(any(SignupRequest.class)))
                 .thenAnswer(invocation -> {
-                    com.denisborovkov.javacrm.dto.SignupRequest request = invocation.getArgument(0);
-                    PasswordEncoder encoder = invocation.getArgument(1);
-                    User user = new User();
-                    user.setEmail(request.email());
-                    user.setPassword(encoder.encode(request.password()));
-                    user.setRole(Role.USER);
-                    return user;
+                    SignupRequest request = invocation.getArgument(0);
+                    UserEntity userEntity = new UserEntity();
+                    userEntity.setEmail(request.email());
+                    userEntity.setPassword(request.password());
+                    userEntity.setRole(Role.USER);
+                    return userEntity;
                 });
-        when(userMapper.toAdminEntity(any(), any()))
+        when(userMapper.toEntity(any(CreateAdminRequest.class)))
                 .thenAnswer(invocation -> {
-                    com.denisborovkov.javacrm.dto.CreateAdminRequest request = invocation.getArgument(0);
-                    PasswordEncoder encoder = invocation.getArgument(1);
-                    User user = new User();
-                    user.setEmail(request.email());
-                    user.setPassword(encoder.encode(request.password()));
-                    user.setRole(Role.ADMIN);
-                    return user;
+                    CreateAdminRequest request = invocation.getArgument(0);
+                    UserEntity userEntity = new UserEntity();
+                    userEntity.setEmail(request.email());
+                    userEntity.setPassword(request.password());
+                    userEntity.setRole(Role.ADMIN);
+                    return userEntity;
                 });
 
         when(refreshTokenRepository.save(any(RefreshToken.class)))
@@ -193,27 +193,27 @@ class AuthControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
-                                  "email": "new-user@example.com",
+                                  "email": "new-userEntity@example.com",
                                   "password": "sup3r-secret"
                                 }
                                 """))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.email").value("new-user@example.com"))
+                .andExpect(jsonPath("$.email").value("new-userEntity@example.com"))
                 .andExpect(jsonPath("$.role").value("USER"));
 
-        User storedUser = usersByEmail.get("new-user@example.com");
-        assertTrue(passwordEncoder.matches("sup3r-secret", storedUser.getPassword()));
+        UserEntity storedUserEntity = usersByEmail.get("new-userEntity@example.com");
+        assertTrue(passwordEncoder.matches("sup3r-secret", storedUserEntity.getPassword()));
     }
 
     @Test
     void signinReturnsAccessAndRefreshTokens() throws Exception {
-        seedUser("signin-user@example.com", "sign-in-password");
+        seedUser("signin-userEntity@example.com", "sign-in-password");
 
         mockMvc.perform(post("/api/v1/auth/signin")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
-                                  "email": "signin-user@example.com",
+                                  "email": "signin-userEntity@example.com",
                                   "password": "sign-in-password"
                                 }
                                 """))
@@ -226,8 +226,8 @@ class AuthControllerTest {
 
     @Test
     void refreshRotatesTokens() throws Exception {
-        seedUser("refresh-user@example.com", "refresh-password");
-        JsonNode signinResponse = signin("refresh-user@example.com", "refresh-password");
+        seedUser("refresh-userEntity@example.com", "refresh-password");
+        JsonNode signinResponse = signin("refresh-userEntity@example.com", "refresh-password");
         String oldRefreshToken = signinResponse.get("refreshToken").asText();
 
         String responseBody = mockMvc.perform(post("/api/v1/auth/refresh")
@@ -254,8 +254,8 @@ class AuthControllerTest {
 
     @Test
     void logoutRevokesRefreshToken() throws Exception {
-        seedUser("logout-user@example.com", "logout-password");
-        JsonNode signinResponse = signin("logout-user@example.com", "logout-password");
+        seedUser("logout-userEntity@example.com", "logout-password");
+        JsonNode signinResponse = signin("logout-userEntity@example.com", "logout-password");
         String refreshToken = signinResponse.get("refreshToken").asText();
 
         mockMvc.perform(post("/api/v1/auth/logout")
@@ -277,7 +277,7 @@ class AuthControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
-                                  "email": "forgot-user@example.com"
+                                  "email": "forgot-userEntity@example.com"
                                 }
                                 """))
                 .andExpect(status().isOk())
@@ -288,10 +288,10 @@ class AuthControllerTest {
 
     @Test
     void resetConsumesOneTimeTokenAndUpdatesPassword() throws Exception {
-        User user = seedUser("reset-user@example.com", "old-password");
+        UserEntity userEntity = seedUser("reset-userEntity@example.com", "old-password");
         oneTimeTokens.put("reset-token", OTToken.builder()
                 .tokenValue("reset-token")
-                .email(user.getEmail())
+                .email(userEntity.getEmail())
                 .issuedAt(Instant.now())
                 .expiresAt(Instant.now().plusSeconds(300))
                 .build());
@@ -308,29 +308,29 @@ class AuthControllerTest {
                 .andExpect(content().string("Password has been reset"));
 
         assertFalse(oneTimeTokens.containsKey("reset-token"));
-        assertTrue(passwordEncoder.matches("new-password", usersByEmail.get(user.getEmail()).getPassword()));
+        assertTrue(passwordEncoder.matches("new-password", usersByEmail.get(userEntity.getEmail()).getPassword()));
     }
 
     @Test
     void meReturnsAuthenticatedUsername() throws Exception {
-        seedUser("me-user@example.com", "me-password");
-        JsonNode signinResponse = signin("me-user@example.com", "me-password");
+        seedUser("me-userEntity@example.com", "me-password");
+        JsonNode signinResponse = signin("me-userEntity@example.com", "me-password");
         String accessToken = signinResponse.get("accessToken").asText();
 
         mockMvc.perform(get("/api/v1/auth/me")
                         .header("Authorization", "Bearer " + accessToken))
                 .andExpect(status().isOk())
-                .andExpect(content().string("me-user@example.com"));
+                .andExpect(content().string("me-userEntity@example.com"));
     }
 
-    private User seedUser(String email, String rawPassword) {
-        User user = new User();
-        user.setEmail(normalizeEmail(email));
-        user.setPassword(passwordEncoder.encode(rawPassword));
-        user.setRole(Role.USER);
-        usersByEmail.put(user.getEmail(), user);
-        user.setId(userIds.getAndIncrement());
-        return user;
+    private UserEntity seedUser(String email, String rawPassword) {
+        UserEntity userEntity = new UserEntity();
+        userEntity.setEmail(normalizeEmail(email));
+        userEntity.setPassword(passwordEncoder.encode(rawPassword));
+        userEntity.setRole(Role.USER);
+        usersByEmail.put(userEntity.getEmail(), userEntity);
+        userEntity.setId(userIds.getAndIncrement());
+        return userEntity;
     }
 
     private JsonNode signin(String email, String password) throws Exception {

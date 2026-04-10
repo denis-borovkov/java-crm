@@ -1,7 +1,7 @@
 package com.denisborovkov.javacrm.service;
 
 import com.denisborovkov.javacrm.dto.*;
-import com.denisborovkov.javacrm.entity.User;
+import com.denisborovkov.javacrm.entity.UserEntity;
 import com.denisborovkov.javacrm.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -36,12 +36,12 @@ public class AuthService {
 
     public UserDTO registerUser(SignupRequest request) {
         validateSignup(request);
-        User user = userService.createUser(request);
-        return userMapper.toDTO(user);
+        UserEntity userEntity = userService.createUser(request);
+        return userMapper.toDTO(userEntity);
     }
 
     public UserDTO registerAdmin(CreateAdminRequest request) {
-        User admin = userService.createAdmin(request);
+        UserEntity admin = userService.createAdmin(request);
         return userMapper.toDTO(admin);
     }
 
@@ -56,9 +56,6 @@ public class AuthService {
     }
 
     private void validateSignup(SignupRequest request) {
-        if (userService.existsUserByEmail(request.email())) {
-            throw new IllegalArgumentException("Username already exists");
-        }
         if (userService.existsUserByEmail(request.email())) {
             throw new IllegalArgumentException("Email already exists");
         }

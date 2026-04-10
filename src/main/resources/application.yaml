@@ -1,17 +1,17 @@
 spring:
   application:
     name: java-crm
-    key: "my-super-secret-key-my-super-secret-value"
+    key: ${JWT_KEY}
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/java_crm
-    username: root
-    password: Ebaldremal228
+    username: ${DATABASE_USERNAME}
+    password: ${DATABASE_PASSWORD}
     name: java_crm
   jpa:
     hibernate:
       ddl-auto: update
-    open-in-view: true
+    open-in-view: false
     show-sql: true
 app:
   security:

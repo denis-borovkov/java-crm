@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/customers")
+@RequestMapping("/api/v1/customers")
 @RequiredArgsConstructor
 public class CustomerController {
 
@@ -24,45 +24,35 @@ public class CustomerController {
     private final CustomerMapper customerMapper;
 
     @PostMapping("/create")
-    public ResponseEntity<CustomerDTO> createCustomer(@RequestBody CreateCustomerRequest request) {
-        Customer customer = customerService.createCustomer(request);
-        return ResponseEntity.ok().body(customerMapper.toDTO(customer));
+    public CustomerDTO create(@RequestBody CreateCustomerRequest request) {
+        return customerService.createCustomer(request);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<CustomerDTO> getCustomerById(@PathVariable Long id)
-            throws CustomerNotFoundException {
-        Customer customer = customerService.getCustomer(id);
-        return ResponseEntity.ok().body(customerMapper.toDTO(customer));
+    @GetMapping("/id/{id}")
+    public CustomerDTO get(@PathVariable Long id) throws CustomerNotFoundException {
+        return customerService.getCustomerById(id);
     }
 
     @GetMapping("/{email}")
-    public ResponseEntity<CustomerDTO> getCustomerByEmail(@PathVariable String email)
-            throws CustomerNotFoundException {
-        Customer customer = customerService.getCustomer(email);
-        return ResponseEntity.ok().body(customerMapper.toDTO(customer));
+    public CustomerDTO get(@PathVariable String email) throws CustomerNotFoundException {
+        return customerService.getCustomerByEmail(email);
     }
 
     @GetMapping()
-    public ResponseEntity<List<CustomerDTO>> getAll() {
-        return ResponseEntity.ok().body(customerService.getAllCustomers()
-                .stream()
-                .map(customerMapper::toDTO)
-                .toList());
+    public List<CustomerDTO> getAll() {
+        return customerService.getAllCustomers();
     }
 
-    @PatchMapping("/{id}")
-    public ResponseEntity<UpdateCustomerResponse> updateCustomer(
+    @PatchMapping("/update/{id}")
+    public UpdateCustomerResponse update(
             @PathVariable Long id,
-            @Valid @RequestBody UpdateCustomerRequest request)
-            throws CustomerNotFoundException {
+            @Valid @RequestBody UpdateCustomerRequest request) throws CustomerNotFoundException {
         Customer updatedCustomer = customerService.updateCustomer(id, request);
-        return ResponseEntity.ok().body(customerMapper.toUpdateResponse(updatedCustomer));
+        return customerMapper.toUpdateResponse(updatedCustomer);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteById(@PathVariable Long id)
-            throws CustomerNotFoundException {
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<String> delete(@PathVariable Long id) throws CustomerNotFoundException {
         customerService.deleteCustomerById(id);
         return ResponseEntity.ok().body("Successfully deleted");
     }
