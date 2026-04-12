@@ -1,9 +1,10 @@
 package com.denisborovkov.javacrm.service;
 
-import com.denisborovkov.javacrm.dto.RefreshRequest;
-import com.denisborovkov.javacrm.dto.RefreshResponse;
-import com.denisborovkov.javacrm.dto.SigninResponse;
+import com.denisborovkov.javacrm.dto.token.RefreshRequest;
+import com.denisborovkov.javacrm.dto.token.RefreshResponse;
+import com.denisborovkov.javacrm.dto.auth.SigninResponse;
 import com.denisborovkov.javacrm.entity.RefreshToken;
+import com.denisborovkov.javacrm.exception.auth.*;
 import com.denisborovkov.javacrm.mapper.RefreshTokenMapper;
 import com.denisborovkov.javacrm.repository.RefreshTokenRepository;
 import lombok.RequiredArgsConstructor;
@@ -40,11 +41,11 @@ public class TokenService {
         refreshTokenRepository.save(refreshToken);
     }
 
-    @Transactional
+    @Transactional(noRollbackFor = RefreshTokenIsAlreadyRevokedException.class)
     public RefreshResponse refreshToken(RefreshRequest request) {
         String oldToken = normalizeToken(request.refreshToken());
         RefreshToken stored = refreshTokenRepository.findByToken(oldToken)
-                .orElseThrow(() -> new RuntimeException("Refresh token not found"));
+                .orElseThrow(() -> new RefreshTokenNotFoundException("Refresh token not found"));
 
         validateRefreshToken(stored, oldToken);
         stored.setRevoked(true);
@@ -72,22 +73,22 @@ public class TokenService {
         refreshTokenRepository.saveAll(tokens);
     }
 
-    public void validateRefreshToken(RefreshToken stored, String oldToken) {
-        if (stored.isRevoked()) {
-            revokeAllUserTokens(stored.getEmail());
-            throw  new RuntimeException("Token is already revoked");
+    public void validateRefreshToken(RefreshToken storedToken, String oldToken) {
+        if (storedToken.isRevoked()) {
+            revokeAllUserTokens(storedToken.getEmail());
+            throw  new RefreshTokenIsAlreadyRevokedException("Token is already revoked");
         }
-        if (stored.getExpiryDate().isBefore(Instant.now())) {
-            throw  new RuntimeException("Token is expired");
+        if (storedToken.getExpiryDate().isBefore(Instant.now())) {
+            throw  new RefreshTokenIsExpiredException("Token is expired");
         }
         if (!jwtService.isRefreshToken(oldToken)) {
-            throw  new RuntimeException("Token is not refreshed");
+            throw  new RefreshTokenIsNotRefreshedException("Token is not refreshed");
         }
     }
 
     public String normalizeToken(String token) {
         if (token == null) {
-            throw new RuntimeException("Refresh token is required");
+            throw new RefreshTokenIsRequiredException("Refresh token is required");
         }
         String normalized = token.trim();
         if (normalized.startsWith("Bearer ")) {

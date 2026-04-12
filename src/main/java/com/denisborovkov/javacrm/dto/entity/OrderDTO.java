@@ -1,4 +1,4 @@
-package com.denisborovkov.javacrm.dto;
+package com.denisborovkov.javacrm.dto.entity;
 
 public record OrderDTO(String description,
                        String customerName,

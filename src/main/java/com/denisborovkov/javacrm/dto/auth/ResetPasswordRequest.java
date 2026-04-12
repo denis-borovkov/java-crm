@@ -1,4 +1,4 @@
-package com.denisborovkov.javacrm.dto;
+package com.denisborovkov.javacrm.dto.auth;
 
 import jakarta.validation.constraints.NotBlank;
 

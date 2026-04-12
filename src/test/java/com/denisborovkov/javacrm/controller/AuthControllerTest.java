@@ -1,15 +1,9 @@
 package com.denisborovkov.javacrm.controller;
 
-import com.denisborovkov.javacrm.dto.CreateAdminRequest;
-import com.denisborovkov.javacrm.dto.SignupRequest;
-import com.denisborovkov.javacrm.dto.UserDTO;
 import com.denisborovkov.javacrm.entity.OTToken;
 import com.denisborovkov.javacrm.entity.RefreshToken;
 import com.denisborovkov.javacrm.entity.UserEntity;
 import com.denisborovkov.javacrm.enums.Role;
-import com.denisborovkov.javacrm.mapper.CustomerMapper;
-import com.denisborovkov.javacrm.mapper.UserMapper;
-import com.denisborovkov.javacrm.repository.CustomerRepository;
 import com.denisborovkov.javacrm.repository.OneTimeTokenRepository;
 import com.denisborovkov.javacrm.repository.RefreshTokenRepository;
 import com.denisborovkov.javacrm.repository.UserRepository;
@@ -22,169 +16,35 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicLong;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyIterable;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.lenient;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@ActiveProfiles("test")
 class AuthControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+    @Autowired private MockMvc mockMvc;
+    @Autowired private UserRepository userRepository;
+    @Autowired private RefreshTokenRepository refreshTokenRepository;
+    @Autowired private OneTimeTokenRepository oneTimeTokenRepository;
+    @Autowired private PasswordEncoder passwordEncoder;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @MockitoBean
-    private UserRepository userRepository;
-
-    @MockitoBean
-    private RefreshTokenRepository refreshTokenRepository;
-
-    @MockitoBean
-    private OneTimeTokenRepository oneTimeTokenRepository;
-
-    @MockitoBean
-    private CustomerRepository customerRepository;
-
-    @MockitoBean
-    private UserMapper userMapper;
-
-    @MockitoBean
-    private CustomerMapper customerMapper;
-
-    private Map<String, UserEntity> usersByEmail;
-    private Map<String, RefreshToken> refreshTokens;
-    private Map<String, OTToken> oneTimeTokens;
-    private AtomicLong userIds;
-
     @BeforeEach
     void setUp() {
-        usersByEmail = new LinkedHashMap<>();
-        refreshTokens = new LinkedHashMap<>();
-        oneTimeTokens = new LinkedHashMap<>();
-        userIds = new AtomicLong(1);
-
-        when(userRepository.existsByEmail(anyString()))
-                .thenAnswer(invocation -> usersByEmail.containsKey(normalizeEmail(invocation.getArgument(0, String.class))));
-        when(userRepository.save(any(UserEntity.class)))
-                .thenAnswer(invocation -> {
-                    UserEntity userEntity = invocation.getArgument(0, UserEntity.class);
-                    if (userEntity.getId() == null) {
-                        userEntity.setId(userIds.getAndIncrement());
-                    }
-                    usersByEmail.put(normalizeEmail(userEntity.getEmail()), userEntity);
-                    return userEntity;
-                });
-        when(userRepository.findUserByEmail(anyString()))
-                .thenAnswer(invocation -> Optional.ofNullable(usersByEmail.get(normalizeEmail(invocation.getArgument(0, String.class)))));
-        when(userRepository.findUserByEmail(anyString()))
-                .thenAnswer(invocation -> Optional.ofNullable(usersByEmail.get(normalizeEmail(invocation.getArgument(0, String.class)))));
-        when(userRepository.findById(anyLong()))
-                .thenAnswer(invocation -> usersByEmail.values().stream()
-                        .filter(userEntity -> userEntity.getId().equals(invocation.getArgument(0, Long.class)))
-                        .findFirst());
-        lenient().when(userRepository.findAll()).thenAnswer(invocation -> new ArrayList<>(usersByEmail.values()));
-
-        when(userMapper.toDTO(any(UserEntity.class)))
-                .thenAnswer(invocation -> {
-                    UserEntity userEntity = invocation.getArgument(0, UserEntity.class);
-                    return new UserDTO(userEntity.getEmail(), userEntity.getRole().name());
-                });
-        when(userMapper.toEntity(any(SignupRequest.class)))
-                .thenAnswer(invocation -> {
-                    SignupRequest request = invocation.getArgument(0);
-                    UserEntity userEntity = new UserEntity();
-                    userEntity.setEmail(request.email());
-                    userEntity.setPassword(request.password());
-                    userEntity.setRole(Role.USER);
-                    return userEntity;
-                });
-        when(userMapper.toEntity(any(CreateAdminRequest.class)))
-                .thenAnswer(invocation -> {
-                    CreateAdminRequest request = invocation.getArgument(0);
-                    UserEntity userEntity = new UserEntity();
-                    userEntity.setEmail(request.email());
-                    userEntity.setPassword(request.password());
-                    userEntity.setRole(Role.ADMIN);
-                    return userEntity;
-                });
-
-        when(refreshTokenRepository.save(any(RefreshToken.class)))
-                .thenAnswer(invocation -> {
-                    RefreshToken token = invocation.getArgument(0, RefreshToken.class);
-                    refreshTokens.put(token.getToken(), token);
-                    return token;
-                });
-        when(refreshTokenRepository.saveAll(anyIterable()))
-                .thenAnswer(invocation -> {
-                    Iterable<RefreshToken> tokens = invocation.getArgument(0);
-                    List<RefreshToken> saved = new ArrayList<>();
-                    for (RefreshToken token : tokens) {
-                        refreshTokens.put(token.getToken(), token);
-                        saved.add(token);
-                    }
-                    return saved;
-                });
-        when(refreshTokenRepository.findByToken(anyString()))
-                .thenAnswer(invocation -> Optional.ofNullable(refreshTokens.get(invocation.getArgument(0, String.class))));
-        when(refreshTokenRepository.findAllByEmail(anyString()))
-                .thenAnswer(invocation -> refreshTokens.values().stream()
-                        .filter(token -> token.getEmail().equals(normalizeEmail(invocation.getArgument(0, String.class))))
-                        .toList());
-
-        when(oneTimeTokenRepository.save(any(OTToken.class)))
-                .thenAnswer(invocation -> {
-                    OTToken token = invocation.getArgument(0, OTToken.class);
-                    oneTimeTokens.put(token.getTokenValue(), token);
-                    return token;
-                });
-        when(oneTimeTokenRepository.findById(anyString()))
-                .thenAnswer(invocation
-                        -> Optional.ofNullable(oneTimeTokens.get(invocation.getArgument(0, String.class))));
-        when(oneTimeTokenRepository.findTopByEmailOrderByIssuedAtDesc(anyString()))
-                .thenAnswer(invocation
-                        -> oneTimeTokens.values().stream()
-                        .filter(token
-                                -> token.getEmail().equals(normalizeEmail(invocation.getArgument(0, String.class))))
-                        .max(Comparator.comparing(OTToken::getIssuedAt)));
-        lenient().doAnswer(invocation
-                -> {
-            oneTimeTokens.remove(invocation.getArgument(0, OTToken.class).getTokenValue());
-            return null;
-        }).when(oneTimeTokenRepository).delete(any(OTToken.class));
-        lenient().doAnswer(invocation -> {
-            String email = normalizeEmail(invocation.getArgument(0, String.class));
-            oneTimeTokens.entrySet().removeIf(entry -> entry.getValue().getEmail().equals(email));
-            return null;
-        }).when(oneTimeTokenRepository).deleteAllByEmail(anyString());
+        oneTimeTokenRepository.deleteAll();
+        refreshTokenRepository.deleteAll();
+        userRepository.deleteAll();
     }
 
     @Test
@@ -193,27 +53,27 @@ class AuthControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
-                                  "email": "new-userEntity@example.com",
+                                  "email": "new-user@example.com",
                                   "password": "sup3r-secret"
                                 }
                                 """))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.email").value("new-userEntity@example.com"))
+                .andExpect(jsonPath("$.email").value("new-user@example.com"))
                 .andExpect(jsonPath("$.role").value("USER"));
 
-        UserEntity storedUserEntity = usersByEmail.get("new-userEntity@example.com");
-        assertTrue(passwordEncoder.matches("sup3r-secret", storedUserEntity.getPassword()));
+        UserEntity stored = userRepository.findUserByEmail("new-user@example.com").orElseThrow();
+        assertTrue(passwordEncoder.matches("sup3r-secret", stored.getPassword()));
     }
 
     @Test
     void signinReturnsAccessAndRefreshTokens() throws Exception {
-        seedUser("signin-userEntity@example.com", "sign-in-password");
+        seedUser("signin-user@example.com", "sign-in-password");
 
         mockMvc.perform(post("/api/v1/auth/signin")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
-                                  "email": "signin-userEntity@example.com",
+                                  "email": "signin-user@example.com",
                                   "password": "sign-in-password"
                                 }
                                 """))
@@ -221,13 +81,13 @@ class AuthControllerTest {
                 .andExpect(jsonPath("$.accessToken").isString())
                 .andExpect(jsonPath("$.refreshToken").isString());
 
-        assertFalse(refreshTokens.isEmpty());
+        assertEquals(1, refreshTokenRepository.count());
     }
 
     @Test
     void refreshRotatesTokens() throws Exception {
-        seedUser("refresh-userEntity@example.com", "refresh-password");
-        JsonNode signinResponse = signin("refresh-userEntity@example.com", "refresh-password");
+        seedUser("refresh-user@example.com", "refresh-password");
+        JsonNode signinResponse = signin("refresh-user@example.com", "refresh-password");
         String oldRefreshToken = signinResponse.get("refreshToken").asText();
 
         String responseBody = mockMvc.perform(post("/api/v1/auth/refresh")
@@ -244,18 +104,46 @@ class AuthControllerTest {
                 .getResponse()
                 .getContentAsString();
 
-        JsonNode refreshResponse = objectMapper.readTree(responseBody);
-        String newRefreshToken = refreshResponse.get("newRefreshToken").asText();
+        String newRefreshToken = objectMapper.readTree(responseBody).get("newRefreshToken").asText();
 
         assertNotEquals(oldRefreshToken, newRefreshToken);
-        assertTrue(refreshTokens.containsKey(newRefreshToken));
-        assertFalse(refreshTokens.get(newRefreshToken).isRevoked());
+        assertTrue(refreshTokenRepository.findByToken(oldRefreshToken).orElseThrow().isRevoked());
+        assertFalse(refreshTokenRepository.findByToken(newRefreshToken).orElseThrow().isRevoked());
+    }
+
+    @Test
+    void refreshRejectsReuseOfRevokedToken() throws Exception {
+        seedUser("reuse-user@example.com", "reuse-password");
+        JsonNode signinResponse = signin("reuse-user@example.com", "reuse-password");
+        String refreshToken = signinResponse.get("refreshToken").asText();
+
+        // first refresh — consumes the token
+        mockMvc.perform(post("/api/v1/auth/refresh")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                { "refreshToken": "%s" }
+                                """.formatted(refreshToken)))
+                .andExpect(status().isOk());
+
+        // second refresh with the same token — must be rejected
+        mockMvc.perform(post("/api/v1/auth/refresh")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                { "refreshToken": "%s" }
+                                """.formatted(refreshToken)))
+                .andExpect(status().isUnauthorized());
+
+        // reuse detection must revoke all tokens for this user
+        assertTrue(refreshTokenRepository
+                .findAllByEmail("reuse-user@example.com")
+                .stream()
+                .allMatch(RefreshToken::isRevoked));
     }
 
     @Test
     void logoutRevokesRefreshToken() throws Exception {
-        seedUser("logout-userEntity@example.com", "logout-password");
-        JsonNode signinResponse = signin("logout-userEntity@example.com", "logout-password");
+        seedUser("logout-user@example.com", "logout-password");
+        JsonNode signinResponse = signin("logout-user@example.com", "logout-password");
         String refreshToken = signinResponse.get("refreshToken").asText();
 
         mockMvc.perform(post("/api/v1/auth/logout")
@@ -268,30 +156,30 @@ class AuthControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().string("You have been logged out"));
 
-        assertTrue(refreshTokens.get(refreshToken).isRevoked());
+        assertTrue(refreshTokenRepository.findByToken(refreshToken).orElseThrow().isRevoked());
     }
 
     @Test
-    void forgotCreatesOneTimeTokenLink() throws Exception {
+    void forgotCreatesOneTimeToken() throws Exception {
         mockMvc.perform(post("/api/v1/auth/forgot")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
-                                  "email": "forgot-userEntity@example.com"
+                                  "email": "forgot-user@example.com"
                                 }
                                 """))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.oneTimeToken").value(org.hamcrest.Matchers.startsWith("http://localhost:3000/")));
+                .andExpect(jsonPath("$.oneTimeToken").isString());
 
-        assertFalse(oneTimeTokens.isEmpty());
+        assertEquals(1, oneTimeTokenRepository.count());
     }
 
     @Test
     void resetConsumesOneTimeTokenAndUpdatesPassword() throws Exception {
-        UserEntity userEntity = seedUser("reset-userEntity@example.com", "old-password");
-        oneTimeTokens.put("reset-token", OTToken.builder()
+        UserEntity user = seedUser("reset-user@example.com", "old-password");
+        oneTimeTokenRepository.save(OTToken.builder()
                 .tokenValue("reset-token")
-                .email(userEntity.getEmail())
+                .email(user.getEmail())
                 .issuedAt(Instant.now())
                 .expiresAt(Instant.now().plusSeconds(300))
                 .build());
@@ -307,34 +195,35 @@ class AuthControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().string("Password has been reset"));
 
-        assertFalse(oneTimeTokens.containsKey("reset-token"));
-        assertTrue(passwordEncoder.matches("new-password", usersByEmail.get(userEntity.getEmail()).getPassword()));
+        assertFalse(oneTimeTokenRepository.existsById("reset-token"));
+        UserEntity updated = userRepository.findUserByEmail(user.getEmail()).orElseThrow();
+        assertTrue(passwordEncoder.matches("new-password", updated.getPassword()));
     }
 
     @Test
     void meReturnsAuthenticatedUsername() throws Exception {
-        seedUser("me-userEntity@example.com", "me-password");
-        JsonNode signinResponse = signin("me-userEntity@example.com", "me-password");
-        String accessToken = signinResponse.get("accessToken").asText();
+        seedUser("me-user@example.com", "me-password");
+        String accessToken = signin("me-user@example.com", "me-password")
+                .get("accessToken").asText();
 
         mockMvc.perform(get("/api/v1/auth/me")
                         .header("Authorization", "Bearer " + accessToken))
                 .andExpect(status().isOk())
-                .andExpect(content().string("me-userEntity@example.com"));
+                .andExpect(content().string("me-user@example.com"));
     }
 
+    // --- helpers ---
+
     private UserEntity seedUser(String email, String rawPassword) {
-        UserEntity userEntity = new UserEntity();
-        userEntity.setEmail(normalizeEmail(email));
-        userEntity.setPassword(passwordEncoder.encode(rawPassword));
-        userEntity.setRole(Role.USER);
-        usersByEmail.put(userEntity.getEmail(), userEntity);
-        userEntity.setId(userIds.getAndIncrement());
-        return userEntity;
+        UserEntity user = new UserEntity();
+        user.setEmail(email.toLowerCase(Locale.ENGLISH));
+        user.setPassword(passwordEncoder.encode(rawPassword));
+        user.setRole(Role.USER);
+        return userRepository.save(user);
     }
 
     private JsonNode signin(String email, String password) throws Exception {
-        String responseBody = mockMvc.perform(post("/api/v1/auth/signin")
+        String body = mockMvc.perform(post("/api/v1/auth/signin")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -346,11 +235,6 @@ class AuthControllerTest {
                 .andReturn()
                 .getResponse()
                 .getContentAsString();
-
-        return objectMapper.readTree(responseBody);
-    }
-
-    private String normalizeEmail(String email) {
-        return email.toLowerCase(Locale.ENGLISH);
+        return objectMapper.readTree(body);
     }
 }

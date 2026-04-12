@@ -1,7 +1,7 @@
 package com.denisborovkov.javacrm.service;
 
 import com.denisborovkov.javacrm.entity.OTToken;
-import com.denisborovkov.javacrm.exception.OneTimeTokenRateLimitException;
+import com.denisborovkov.javacrm.exception.auth.OneTimeTokenRateLimitException;
 import com.denisborovkov.javacrm.mapper.OneTimeTokenMapper;
 import com.denisborovkov.javacrm.repository.OneTimeTokenRepository;
 import org.junit.jupiter.api.BeforeEach;

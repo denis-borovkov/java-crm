@@ -1,4 +1,4 @@
-package com.denisborovkov.javacrm.dto;
+package com.denisborovkov.javacrm.dto.token;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

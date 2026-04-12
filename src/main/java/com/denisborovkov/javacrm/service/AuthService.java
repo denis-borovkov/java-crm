@@ -1,6 +1,9 @@
 package com.denisborovkov.javacrm.service;
 
-import com.denisborovkov.javacrm.dto.*;
+import com.denisborovkov.javacrm.dto.auth.*;
+import com.denisborovkov.javacrm.dto.entity.UserDTO;
+import com.denisborovkov.javacrm.dto.token.ForgotRequest;
+import com.denisborovkov.javacrm.dto.token.ForgotResponse;
 import com.denisborovkov.javacrm.entity.UserEntity;
 import com.denisborovkov.javacrm.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +33,6 @@ public class AuthService {
                 )
         );
         UserDetails user = (UserDetails) authentication.getPrincipal();
-        assert user != null;
         return tokenService.issueTokens(user);
     }
 
@@ -47,7 +49,7 @@ public class AuthService {
 
     public ForgotResponse forgotPassword(ForgotRequest request) {
         String oneTimeToken = jpaOneTimeTokenService.createOneTimeToken(request.email());
-        return new ForgotResponse("http://localhost:3000/" + oneTimeToken);
+        return new ForgotResponse(oneTimeToken);
     }
 
     public void resetPassword(ResetPasswordRequest request) {

@@ -1,14 +1,13 @@
 package com.denisborovkov.javacrm.mapper;
 
-import com.denisborovkov.javacrm.dto.CreateAdminRequest;
-import com.denisborovkov.javacrm.dto.SignupRequest;
-import com.denisborovkov.javacrm.dto.UserDTO;
+import com.denisborovkov.javacrm.dto.auth.CreateAdminRequest;
+import com.denisborovkov.javacrm.dto.auth.SignupRequest;
+import com.denisborovkov.javacrm.dto.entity.UserDTO;
 import com.denisborovkov.javacrm.entity.UserEntity;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.NullValuePropertyMappingStrategy;
-import org.springframework.security.core.userdetails.UserDetails;
 
 @Mapper(componentModel = "spring")
 public interface UserMapper {
@@ -23,5 +22,5 @@ public interface UserMapper {
     @Mapping(target = "password")
     UserEntity toEntity(CreateAdminRequest request);
 
-    UserDTO toDTO(UserDetails userEntity);
+    UserDTO toDTO(UserEntity userEntity);
 }

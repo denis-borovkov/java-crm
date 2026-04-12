@@ -1,17 +1,17 @@
 package com.denisborovkov.javacrm.service;
 
-import com.denisborovkov.javacrm.dto.CreateAdminRequest;
-import com.denisborovkov.javacrm.dto.SignupRequest;
+import com.denisborovkov.javacrm.dto.auth.CreateAdminRequest;
+import com.denisborovkov.javacrm.dto.auth.SignupRequest;
 import com.denisborovkov.javacrm.entity.UserEntity;
 import com.denisborovkov.javacrm.enums.Role;
-import com.denisborovkov.javacrm.exception.PasswordMismatchException;
+import com.denisborovkov.javacrm.exception.auth.PasswordMismatchException;
 import com.denisborovkov.javacrm.mapper.UserMapper;
 import com.denisborovkov.javacrm.repository.UserRepository;
+import com.denisborovkov.javacrm.security.UserPrincipal;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NullMarked;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -51,13 +51,13 @@ public class UserService implements UserDetailsService {
 
     public UserEntity getUserById(Long id){
         return userRepository.findById(id).orElseThrow(()
-                -> new UsernameNotFoundException("UserEntity not found"));
+                -> new UsernameNotFoundException("User not found"));
     }
 
     @Transactional
     public void changePassword(Long id, String oldPassword, String newPassword) throws PasswordMismatchException {
         UserEntity userEntity = userRepository.findById(id)
-                .orElseThrow(() -> new UsernameNotFoundException("UserEntity not found: " + id));
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + id));
         if (!passwordEncoder.matches(oldPassword, userEntity.getPassword())) {
                 throw new PasswordMismatchException();
         }
@@ -68,7 +68,7 @@ public class UserService implements UserDetailsService {
     @Transactional
     public void updatePasswordByEmail(String email, String newPassword) {
         UserEntity userEntity = userRepository.findUserByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("UserEntity not found: " + email));
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + email));
         userEntity.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(userEntity);
     }
@@ -77,23 +77,19 @@ public class UserService implements UserDetailsService {
     @NullMarked
     public UserDetails loadUserByUsername(String email) {
         UserEntity userEntity = userRepository.findUserByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("UserEntity not found: " + email));
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + email));
+        return new UserPrincipal(userEntity);
+    }
 
-        return User
-                .withUsername(userEntity.getUsername())
-                .password(userEntity.getPassword())
-                .roles(userEntity.getRole().name())
-                .build();
+    public UserEntity getUserByEmail(String email) {
+        return userRepository.findUserByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + email));
     }
 
     public void deleteUserById(Long id) throws UsernameNotFoundException {
         UserEntity userEntity = userRepository.findById(id)
-                .orElseThrow(() -> new UsernameNotFoundException("UserEntity not found: " + id));
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + id));
         userRepository.delete(userEntity);
-    }
-
-    public void deleteAllUsers() {
-        userRepository.deleteAll();
     }
 
     public boolean existsUserByEmail(@Email @NotBlank String email) {

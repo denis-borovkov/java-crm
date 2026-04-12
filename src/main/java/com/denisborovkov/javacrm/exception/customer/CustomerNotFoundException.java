@@ -1,8 +1,11 @@
-package com.denisborovkov.javacrm.exception;
+package com.denisborovkov.javacrm.exception.customer;
 
 import lombok.NonNull;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
-public class CustomerNotFoundException extends Exception {
+@ResponseStatus(HttpStatus.NOT_FOUND)
+public class CustomerNotFoundException extends RuntimeException {
     public CustomerNotFoundException(@NonNull String email) {
         super("Customer with email " + email + " not found");
     }

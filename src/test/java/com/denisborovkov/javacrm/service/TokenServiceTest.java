@@ -1,7 +1,7 @@
 package com.denisborovkov.javacrm.service;
 
-import com.denisborovkov.javacrm.dto.RefreshRequest;
-import com.denisborovkov.javacrm.dto.RefreshResponse;
+import com.denisborovkov.javacrm.dto.token.RefreshRequest;
+import com.denisborovkov.javacrm.dto.token.RefreshResponse;
 import com.denisborovkov.javacrm.entity.RefreshToken;
 import com.denisborovkov.javacrm.mapper.RefreshTokenMapper;
 import com.denisborovkov.javacrm.repository.RefreshTokenRepository;

@@ -1,9 +1,9 @@
 package com.denisborovkov.javacrm.service;
 
-import com.denisborovkov.javacrm.dto.CreateCustomerRequest;
-import com.denisborovkov.javacrm.dto.CustomerDTO;
-import com.denisborovkov.javacrm.dto.UpdateCustomerRequest;
-import com.denisborovkov.javacrm.exception.CustomerNotFoundException;
+import com.denisborovkov.javacrm.dto.entity.CreateCustomerRequest;
+import com.denisborovkov.javacrm.dto.entity.CustomerDTO;
+import com.denisborovkov.javacrm.dto.entity.UpdateCustomerRequest;
+import com.denisborovkov.javacrm.exception.customer.CustomerNotFoundException;
 import com.denisborovkov.javacrm.entity.Customer;
 import com.denisborovkov.javacrm.mapper.CustomerMapper;
 import com.denisborovkov.javacrm.repository.CustomerRepository;
