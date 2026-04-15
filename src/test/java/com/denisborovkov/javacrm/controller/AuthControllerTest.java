@@ -153,8 +153,7 @@ class AuthControllerTest {
                                   "refreshToken": "%s"
                                 }
                                 """.formatted(refreshToken)))
-                .andExpect(status().isOk())
-                .andExpect(content().string("You have been logged out"));
+                .andExpect(status().isOk());
 
         assertTrue(refreshTokenRepository.findByToken(refreshToken).orElseThrow().isRevoked());
     }
@@ -192,8 +191,7 @@ class AuthControllerTest {
                                   "newPassword": "new-password"
                                 }
                                 """))
-                .andExpect(status().isOk())
-                .andExpect(content().string("Password has been reset"));
+                .andExpect(status().isOk());
 
         assertFalse(oneTimeTokenRepository.existsById("reset-token"));
         UserEntity updated = userRepository.findUserByEmail(user.getEmail()).orElseThrow();

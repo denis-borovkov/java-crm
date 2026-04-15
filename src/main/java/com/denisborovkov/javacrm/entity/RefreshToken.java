@@ -1,5 +1,6 @@
 package com.denisborovkov.javacrm.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import lombok.*;
@@ -15,6 +16,7 @@ import java.time.Instant;
 public class RefreshToken {
 
     @Id
+    @Column(length = 512)
     private String token;
     private String email;
     private boolean revoked;
