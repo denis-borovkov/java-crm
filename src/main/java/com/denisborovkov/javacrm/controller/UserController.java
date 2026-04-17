@@ -21,13 +21,13 @@ public class UserController {
     private final UserMapper userMapper;
 
     @GetMapping("/user")
-    public ResponseEntity<UserDTO> getById(@RequestParam Long id){
+    public ResponseEntity<UserDTO> get(@RequestParam Long id){
         UserEntity userEntity = userService.getUserById(id);
         return ResponseEntity.ok().body(userMapper.toDTO(userEntity));
     }
 
-    @GetMapping({"/user"})
-    public ResponseEntity<UserDTO> getByUsername(@RequestParam String username){
+    @GetMapping("/user")
+    public ResponseEntity<UserDTO> get(@RequestParam String username){
         UserEntity userEntity = userService.getUserByEmail(username);
         return ResponseEntity.ok().body(userMapper.toDTO(userEntity));
     }
