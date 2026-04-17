@@ -20,14 +20,14 @@ public class UserController {
     private final UserService userService;
     private final UserMapper userMapper;
 
-    @GetMapping("/{id}")
-    public ResponseEntity<UserDTO> getById(@PathVariable Long id){
+    @GetMapping("/user")
+    public ResponseEntity<UserDTO> getById(@RequestParam Long id){
         UserEntity userEntity = userService.getUserById(id);
         return ResponseEntity.ok().body(userMapper.toDTO(userEntity));
     }
 
-    @GetMapping({"/user/{username}"})
-    public ResponseEntity<UserDTO> getByUsername(@PathVariable String username){
+    @GetMapping({"/user"})
+    public ResponseEntity<UserDTO> getByUsername(@RequestParam String username){
         UserEntity userEntity = userService.getUserByEmail(username);
         return ResponseEntity.ok().body(userMapper.toDTO(userEntity));
     }
