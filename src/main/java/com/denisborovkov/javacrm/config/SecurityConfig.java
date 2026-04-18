@@ -47,6 +47,12 @@ public class SecurityConfig {
     }
 
     @Bean
+    public Dotenv dotenv() {
+           return Dotenv.configure().filename("keys.env").ignoreIfMissing().load()
+                .entries().forEach(e -> System.setProperty(e.getKey(), e.getValue()));
+    }
+
+    @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) {
         return configuration.getAuthenticationManager();
     }
