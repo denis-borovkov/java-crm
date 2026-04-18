@@ -1,5 +1,6 @@
 package com.denisborovkov.javacrm.config;
 
+import io.github.cdimascio.dotenv.Dotenv;
 import com.denisborovkov.javacrm.enums.Role;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
