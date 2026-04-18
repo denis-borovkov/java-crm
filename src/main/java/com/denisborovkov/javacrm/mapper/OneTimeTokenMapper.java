@@ -8,10 +8,5 @@ import java.time.Instant;
 
 @Mapper(componentModel = "spring")
 public interface OneTimeTokenMapper {
-
-    @Mapping(target = "tokenValue")
-    @Mapping(target = "email")
-    @Mapping(target = "issuedAt")
-    @Mapping(target = "expiresAt")
     OTToken toEntity(String tokenValue, String email, Instant issuedAt, Instant expiresAt);
 }

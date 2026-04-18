@@ -33,8 +33,8 @@ public class CustomerController {
         return customerService.getCustomerById(id);
     }
 
-    @GetMapping("/{email}")
-    public CustomerDTO get(@PathVariable String email) throws CustomerNotFoundException {
+    @GetMapping("/find")
+    public CustomerDTO get(@RequestParam String email) throws CustomerNotFoundException {
         return customerService.getCustomerByEmail(email);
     }
 
