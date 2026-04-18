@@ -32,10 +32,10 @@ public class UserService implements UserDetailsService {
     private final UserMapper userMapper;
 
     public UserEntity createUser(SignupRequest request) {
-        UserEntity userEntity = userMapper.toEntity(request);
-        userEntity.setPassword(passwordEncoder.encode(request.password()));
-        userEntity.setRole(Role.USER);
-        return userRepository.save(userEntity);
+        UserEntity user = userMapper.toEntity(request);
+        user.setPassword(passwordEncoder.encode(request.password()));
+        user.setRole(Role.USER);
+        return userRepository.save(user);
     }
 
     public UserEntity createAdmin(CreateAdminRequest request) {
@@ -56,29 +56,29 @@ public class UserService implements UserDetailsService {
 
     @Transactional
     public void changePassword(Long id, String oldPassword, String newPassword) throws PasswordMismatchException {
-        UserEntity userEntity = userRepository.findById(id)
+        UserEntity user = userRepository.findById(id)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + id));
-        if (!passwordEncoder.matches(oldPassword, userEntity.getPassword())) {
+        if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
                 throw new PasswordMismatchException();
         }
-        userEntity.setPassword(passwordEncoder.encode(newPassword));
-        userRepository.save(userEntity);
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
     }
 
     @Transactional
-    public void updatePasswordByEmail(String email, String newPassword) {
-        UserEntity userEntity = userRepository.findUserByEmail(email)
+    public void updatePassword(String email, String newPassword) {
+        UserEntity user = userRepository.findUserByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + email));
         userEntity.setPassword(passwordEncoder.encode(newPassword));
-        userRepository.save(userEntity);
+        userRepository.save(user);
     }
 
     @Override
     @NullMarked
     public UserDetails loadUserByUsername(String email) {
-        UserEntity userEntity = userRepository.findUserByEmail(email)
+        UserEntity user = userRepository.findUserByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + email));
-        return new UserPrincipal(userEntity);
+        return new UserPrincipal(user);
     }
 
     public UserEntity getUserByEmail(String email) {
@@ -87,9 +87,9 @@ public class UserService implements UserDetailsService {
     }
 
     public void deleteUserById(Long id) throws UsernameNotFoundException {
-        UserEntity userEntity = userRepository.findById(id)
+        UserEntity user = userRepository.findById(id)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + id));
-        userRepository.delete(userEntity);
+        userRepository.delete(user);
     }
 
     public boolean existsUserByEmail(@Email @NotBlank String email) {
