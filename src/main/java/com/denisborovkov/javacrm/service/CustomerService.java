@@ -31,13 +31,13 @@ public class CustomerService {
         return customerRepository.findAll().stream().map(customerMapper::toDTO).toList();
     }
 
-    public CustomerDTO getCustomerById(Long id) throws CustomerNotFoundException {
+    public CustomerDTO getCustomer(Long id) throws CustomerNotFoundException {
         Customer customer = customerRepository.findById(id).orElseThrow(()
                 -> new CustomerNotFoundException(id));
         return customerMapper.toDTO(customer);
     }
 
-    public CustomerDTO getCustomerByEmail(String email) throws CustomerNotFoundException {
+    public CustomerDTO getCustomer(String email) throws CustomerNotFoundException {
         Customer customer = customerRepository.findByEmail(email).orElseThrow(()
                 -> new CustomerNotFoundException(email));
         return customerMapper.toDTO(customer);
@@ -52,7 +52,7 @@ public class CustomerService {
         return customerRepository.save(customer);
     }
 
-    public void deleteCustomerById(Long id) throws CustomerNotFoundException {
+    public void deleteCustomer(Long id) throws CustomerNotFoundException {
         Customer customer = customerRepository.findById(id).orElseThrow(()
                 -> new CustomerNotFoundException(id));
         customerRepository.delete(customer);
