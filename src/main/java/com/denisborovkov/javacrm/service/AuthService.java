@@ -54,7 +54,7 @@ public class AuthService {
 
     public void resetPassword(ResetPasswordRequest request) {
         String email = jpaOneTimeTokenService.useOneTimeToken(request.oneTimeToken());
-        userService.updatePasswordByEmail(email, request.newPassword());
+        userService.updatePassword(email, request.newPassword());
     }
 
     private void validateSignup(SignupRequest request) {

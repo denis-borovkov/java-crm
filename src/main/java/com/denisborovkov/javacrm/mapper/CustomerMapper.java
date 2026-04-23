@@ -9,6 +9,7 @@ import org.mapstruct.*;
 
 @Mapper(componentModel = "spring")
 public interface CustomerMapper {
+    @Mapping(target = "id", source = "customerId")
     CustomerDTO toDTO(Customer customer);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
@@ -19,6 +20,5 @@ public interface CustomerMapper {
     void updateCustomer(UpdateCustomerRequest updateCustomerRequest,
                         @MappingTarget Customer entity);
 
-    @Mapping(target = "customerId")
     UpdateCustomerResponse toUpdateResponse(Customer customer);
 }

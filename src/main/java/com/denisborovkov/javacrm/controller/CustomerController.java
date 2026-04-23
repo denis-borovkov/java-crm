@@ -30,12 +30,12 @@ public class CustomerController {
 
     @GetMapping("/id/{id}")
     public CustomerDTO get(@PathVariable Long id) throws CustomerNotFoundException {
-        return customerService.getCustomerById(id);
+        return customerService.getCustomer(id);
     }
 
     @GetMapping("/find")
     public CustomerDTO get(@RequestParam String email) throws CustomerNotFoundException {
-        return customerService.getCustomerByEmail(email);
+        return customerService.getCustomer(email);
     }
 
     @GetMapping()
@@ -53,7 +53,7 @@ public class CustomerController {
 
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<String> delete(@PathVariable Long id) throws CustomerNotFoundException {
-        customerService.deleteCustomerById(id);
+        customerService.deleteCustomer(id);
         return ResponseEntity.ok().body("Successfully deleted");
     }
 }

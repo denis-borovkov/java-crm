@@ -1,6 +1,5 @@
 package com.denisborovkov.javacrm.config;
 
-import io.github.cdimascio.dotenv.Dotenv;
 import com.denisborovkov.javacrm.enums.Role;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -45,12 +44,6 @@ public class SecurityConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
-    }
-
-    @Bean
-    public Dotenv dotenv() {
-           return Dotenv.configure().filename("keys.env").ignoreIfMissing().load()
-                .entries().forEach(e -> System.setProperty(e.getKey(), e.getValue()));
     }
 
     @Bean

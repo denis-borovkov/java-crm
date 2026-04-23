@@ -6,7 +6,7 @@ import com.denisborovkov.javacrm.dto.entity.UpdateCustomerRequest;
 import com.denisborovkov.javacrm.exception.customer.CustomerNotFoundException;
 import com.denisborovkov.javacrm.entity.Customer;
 import com.denisborovkov.javacrm.mapper.CustomerMapper;
-import com.denisborovkov.javacrm.repository.CustomerRepository;
+import com.denisborovkov.javacrm.dao.CustomerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

@@ -16,8 +16,11 @@ import java.util.UUID;
 @Service
 public class JwtService {
 
-    @Value("${spring.application.key}")
-    private String SECRET;
+    private final SecretKey secretKey;
+
+    public JwtService(@Value("${spring.application.key}") String secret) {
+        this.secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+    }
 
     public String generateAccessToken(UserDetails user) {
         return Jwts.builder()
@@ -26,7 +29,7 @@ public class JwtService {
                 .claim("type", "access")
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 15))
-                .signWith(getKey())
+                .signWith(secretKey)
                 .compact();
     }
 
@@ -37,7 +40,7 @@ public class JwtService {
                 .claim("type", "refresh")
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24 * 7))
-                .signWith(getKey())
+                .signWith(secretKey)
                 .compact();
     }
 
@@ -46,42 +49,28 @@ public class JwtService {
     }
 
     public boolean isValidToken(String token, UserDetails userDetails) {
-        String username = extractUsername(token);
-        return (username.equals(userDetails.getUsername()) && !isExpired(token));
+        try {
+            Claims claims = getClaims(token);
+            return userDetails.getUsername().equals(claims.getSubject())
+                    && !claims.getExpiration().before(new Date());
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
     }
 
     public boolean isRefreshToken(String token) {
         return "refresh".equals(getClaims(token).get("type"));
     }
 
-    private boolean isExpired(String token) {
-        return getClaims(token).getExpiration().before(new Date());
-    }
-
     public Claims getClaims(String token) {
         try {
             return Jwts.parser()
-                    .verifyWith(getKey())
+                    .verifyWith(secretKey)
                     .build()
-                    .parseSignedClaims(normalizeToken(token))
+                    .parseSignedClaims(token)
                     .getPayload();
-        } catch (JwtException | IllegalArgumentException exception) {
-            throw new IllegalArgumentException("Invalid JWT token", exception);
+        } catch (JwtException | IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid JWT token", e);
         }
-    }
-
-    private SecretKey getKey(){
-        return Keys.hmacShaKeyFor(SECRET.getBytes(StandardCharsets.UTF_8));
-    }
-
-    private String normalizeToken(String token) {
-        if (token == null) {
-            throw new IllegalArgumentException("Token is required");
-        }
-        String normalized = token.trim();
-        if (normalized.startsWith("Bearer ")) {
-            normalized = normalized.substring(7).trim();
-        }
-        return normalized;
     }
 }

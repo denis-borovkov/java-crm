@@ -1,4 +1,4 @@
-package com.denisborovkov.javacrm.repository;
+package com.denisborovkov.javacrm.dao;
 
 import com.denisborovkov.javacrm.entity.UserEntity;
 import org.springframework.data.jpa.repository.JpaRepository;

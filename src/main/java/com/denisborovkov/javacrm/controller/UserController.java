@@ -20,19 +20,19 @@ public class UserController {
     private final UserService userService;
     private final UserMapper userMapper;
 
-    @GetMapping("/user")
+    @GetMapping("/id")
     public ResponseEntity<UserDTO> get(@RequestParam Long id){
         UserEntity userEntity = userService.getUserById(id);
         return ResponseEntity.ok().body(userMapper.toDTO(userEntity));
     }
 
-    @GetMapping("/user")
+    @GetMapping("/email")
     public ResponseEntity<UserDTO> get(@RequestParam String username){
         UserEntity userEntity = userService.getUserByEmail(username);
         return ResponseEntity.ok().body(userMapper.toDTO(userEntity));
     }
 
-    @GetMapping
+    @GetMapping("/all")
     public ResponseEntity<List<UserDTO>> getAll() {
         return ResponseEntity.ok().body(userService.getAllUsers()
                 .stream()

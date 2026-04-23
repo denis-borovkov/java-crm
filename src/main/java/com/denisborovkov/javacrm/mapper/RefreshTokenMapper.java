@@ -9,9 +9,6 @@ import java.time.Instant;
 @Mapper(componentModel = "spring")
 public interface RefreshTokenMapper {
 
-    @Mapping(target = "token")
-    @Mapping(target = "email")
     @Mapping(target = "revoked", constant = "false")
-    @Mapping(target = "expiryDate")
     RefreshToken toEntity(String token, String email, Instant expiryDate);
 }

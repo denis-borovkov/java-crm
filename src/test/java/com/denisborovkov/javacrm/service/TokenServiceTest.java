@@ -4,7 +4,7 @@ import com.denisborovkov.javacrm.dto.token.RefreshRequest;
 import com.denisborovkov.javacrm.dto.token.RefreshResponse;
 import com.denisborovkov.javacrm.entity.RefreshToken;
 import com.denisborovkov.javacrm.mapper.RefreshTokenMapper;
-import com.denisborovkov.javacrm.repository.RefreshTokenRepository;
+import com.denisborovkov.javacrm.dao.RefreshTokenRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;

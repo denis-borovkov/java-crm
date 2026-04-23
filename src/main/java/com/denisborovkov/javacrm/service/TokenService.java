@@ -6,7 +6,7 @@ import com.denisborovkov.javacrm.dto.auth.SigninResponse;
 import com.denisborovkov.javacrm.entity.RefreshToken;
 import com.denisborovkov.javacrm.exception.auth.*;
 import com.denisborovkov.javacrm.mapper.RefreshTokenMapper;
-import com.denisborovkov.javacrm.repository.RefreshTokenRepository;
+import com.denisborovkov.javacrm.dao.RefreshTokenRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -43,7 +43,7 @@ public class TokenService {
 
     @Transactional(noRollbackFor = RefreshTokenIsAlreadyRevokedException.class)
     public RefreshResponse refreshToken(RefreshRequest request) {
-        String oldToken = normalizeToken(request.refreshToken());
+        String oldToken = request.refreshToken().substring(7);
         RefreshToken stored = refreshTokenRepository.findByToken(oldToken)
                 .orElseThrow(() -> new RefreshTokenNotFoundException("Refresh token not found"));
 
@@ -58,7 +58,7 @@ public class TokenService {
 
     @Transactional
     public void logoutRevokeToken(RefreshRequest request) {
-        refreshTokenRepository.findByToken(normalizeToken(request.refreshToken()))
+        refreshTokenRepository.findByToken(request.refreshToken().substring(7))
                 .ifPresent(token -> {
                     token.setRevoked(true);
                     refreshTokenRepository.save(token);
@@ -84,16 +84,5 @@ public class TokenService {
         if (!jwtService.isRefreshToken(oldToken)) {
             throw  new RefreshTokenIsNotRefreshedException("Token is not refreshed");
         }
-    }
-
-    public String normalizeToken(String token) {
-        if (token == null) {
-            throw new RefreshTokenIsRequiredException("Refresh token is required");
-        }
-        String normalized = token.trim();
-        if (normalized.startsWith("Bearer ")) {
-            normalized = normalized.substring(7).trim();
-        }
-        return normalized;
     }
 }

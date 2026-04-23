@@ -6,7 +6,7 @@ import com.denisborovkov.javacrm.entity.UserEntity;
 import com.denisborovkov.javacrm.enums.Role;
 import com.denisborovkov.javacrm.exception.auth.PasswordMismatchException;
 import com.denisborovkov.javacrm.mapper.UserMapper;
-import com.denisborovkov.javacrm.repository.UserRepository;
+import com.denisborovkov.javacrm.dao.UserRepository;
 import com.denisborovkov.javacrm.security.UserPrincipal;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -69,7 +69,7 @@ public class UserService implements UserDetailsService {
     public void updatePassword(String email, String newPassword) {
         UserEntity user = userRepository.findUserByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + email));
-        userEntity.setPassword(passwordEncoder.encode(newPassword));
+        user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
     }
 
