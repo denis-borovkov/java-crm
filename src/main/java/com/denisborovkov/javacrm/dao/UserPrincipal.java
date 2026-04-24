@@ -1,4 +1,4 @@
-package com.denisborovkov.javacrm.security;
+package com.denisborovkov.javacrm.dao;
 
 import com.denisborovkov.javacrm.entity.UserEntity;
 import org.jspecify.annotations.NullMarked;

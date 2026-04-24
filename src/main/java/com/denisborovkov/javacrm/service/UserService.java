@@ -7,7 +7,7 @@ import com.denisborovkov.javacrm.enums.Role;
 import com.denisborovkov.javacrm.exception.auth.PasswordMismatchException;
 import com.denisborovkov.javacrm.mapper.UserMapper;
 import com.denisborovkov.javacrm.dao.UserRepository;
-import com.denisborovkov.javacrm.security.UserPrincipal;
+import com.denisborovkov.javacrm.dao.UserPrincipal;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;

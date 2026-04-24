@@ -30,17 +30,17 @@ public class OrderController {
         return orderService.findAllOrders();
     }
 
-    @GetMapping
+    @GetMapping("/id")
     public OrderDTO getById(@RequestParam Long id) {
         return orderService.findOrderById(id);
     }
 
-    @GetMapping
+    @GetMapping("email")
     public OrderDTO getByEmail(@RequestParam String email) {
         return orderService.findOrderByEmail(email);
     }
 
-    @GetMapping
+    @GetMapping("/phone")
     public OrderDTO getByCustomerPhone(@RequestParam String phone) {
         return orderService.findOrderByCustomerPhone(phone);
     }

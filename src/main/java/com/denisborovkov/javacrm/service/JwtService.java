@@ -18,7 +18,7 @@ public class JwtService {
 
     private final SecretKey secretKey;
 
-    public JwtService(@Value("${spring.application.key}") String secret) {
+    public JwtService(@Value("${app.security.key}") String secret) {
         this.secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 
