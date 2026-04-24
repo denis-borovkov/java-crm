@@ -1,6 +1,5 @@
 package com.denisborovkov.javacrm.common.exception;
 
-import com.denisborovkov.javacrm.common.exception.ErrorResponse;
 import com.denisborovkov.javacrm.auth.exception.*;
 import com.denisborovkov.javacrm.customer.exception.CustomerNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;

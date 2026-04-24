@@ -1,7 +1,6 @@
 package com.denisborovkov.javacrm.customer.domain;
 
 import com.denisborovkov.javacrm.common.model.BaseEntity;
-import com.denisborovkov.javacrm.customer.domain.Status;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedBy;

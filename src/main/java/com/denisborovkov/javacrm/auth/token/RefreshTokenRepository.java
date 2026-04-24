@@ -1,7 +1,5 @@
 package com.denisborovkov.javacrm.auth.token;
 
-
-import com.denisborovkov.javacrm.auth.token.RefreshToken;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

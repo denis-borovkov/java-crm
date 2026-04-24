@@ -1,6 +1,5 @@
 package com.denisborovkov.javacrm.auth.token;
 
-import com.denisborovkov.javacrm.auth.token.RefreshToken;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
