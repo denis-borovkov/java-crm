@@ -1,0 +1,27 @@
+services:
+  app:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      DATABASE_URL: jdbc:mysql://db:3306/java_crm
+      DATABASE_USERNAME: root
+      DATABASE_PASSWORD: Ebaldremal228
+      JWT_KEY: pJ7H7jUinHENJClG8AELp19IX0wgpnuo3dbuVT6l9HW
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: Ebaldremal228
+      MYSQL_DATABASE: java_crm
+    ports:
+      - "3307:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-pEbaldremal228"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s

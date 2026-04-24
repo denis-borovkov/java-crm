@@ -1,0 +1,91 @@
+package com.denisborovkov.javacrm.auth.service;
+
+import com.denisborovkov.javacrm.auth.token.RefreshRequest;
+import com.denisborovkov.javacrm.auth.token.RefreshResponse;
+import com.denisborovkov.javacrm.auth.dto.SigninResponse;
+import com.denisborovkov.javacrm.auth.token.RefreshToken;
+import com.denisborovkov.javacrm.auth.exception.*;
+import com.denisborovkov.javacrm.auth.token.RefreshTokenMapper;
+import com.denisborovkov.javacrm.auth.token.RefreshTokenRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
+
+@Service
+@RequiredArgsConstructor
+public class TokenService {
+    private final RefreshTokenRepository refreshTokenRepository;
+    private final RefreshTokenMapper refreshTokenMapper;
+    private final JwtService jwtService;
+    private final UserDetailsService userDetailsService;
+
+    public SigninResponse issueTokens(UserDetails user) {
+        String accessToken = jwtService.generateAccessToken(user);
+        String refreshToken = jwtService.generateRefreshToken(user);
+        createRefreshToken(refreshToken, user);
+        return new SigninResponse(accessToken, refreshToken);
+    }
+
+    public void createRefreshToken(String token, UserDetails user) {
+        RefreshToken refreshToken = refreshTokenMapper.toEntity(
+                token,
+                user.getUsername(),
+                Instant.now().plus(7, ChronoUnit.DAYS)
+        );
+        refreshTokenRepository.save(refreshToken);
+    }
+
+    @Transactional(noRollbackFor = RefreshTokenIsAlreadyRevokedException.class)
+    public RefreshResponse refreshToken(RefreshRequest request) {
+        String oldToken = request.refreshToken().substring(7);
+        RefreshToken stored = refreshTokenRepository.findByToken(oldToken)
+                .orElseThrow(() -> new RefreshTokenNotFoundException("Refresh token not found"));
+
+        validateRefreshToken(stored, oldToken);
+        stored.setRevoked(true);
+        refreshTokenRepository.save(stored);
+
+        UserDetails user = userDetailsService.loadUserByUsername(stored.getEmail());
+        SigninResponse tokens = issueTokens(user);
+        return new RefreshResponse(tokens.accessToken(), tokens.refreshToken());
+    }
+
+    @Transactional
+    public void logoutRevokeToken(RefreshRequest request) {
+        refreshTokenRepository.findByToken(request.refreshToken().substring(7))
+                .ifPresent(token -> {
+                    token.setRevoked(true);
+                    refreshTokenRepository.save(token);
+                });
+    }
+
+    public void revokeAllUserTokens(String username) {
+        List<RefreshToken> tokens = refreshTokenRepository.findAllByEmail(username);
+        for (RefreshToken token : tokens) {
+            token.setRevoked(true);
+        }
+        refreshTokenRepository.saveAll(tokens);
+    }
+
+    public void validateRefreshToken(RefreshToken storedToken, String oldToken) {
+        if (storedToken.isRevoked()) {
+            revokeAllUserTokens(storedToken.getEmail());
+            throw  new RefreshTokenIsAlreadyRevokedException("Token is already revoked");
+        }
+        if (storedToken.getExpiryDate().isBefore(Instant.now())) {
+            throw  new RefreshTokenIsExpiredException("Token is expired");
+        }
+        if (!jwtService.isRefreshToken(oldToken)) {
+            throw  new RefreshTokenIsNotRefreshedException("Token is not refreshed");
+        }
+    }
+}
+
+
+
