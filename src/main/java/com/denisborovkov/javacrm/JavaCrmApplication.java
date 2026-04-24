@@ -12,3 +12,6 @@ public class JavaCrmApplication {
         SpringApplication.run(JavaCrmApplication.class, args);
     }
 }
+
+
+

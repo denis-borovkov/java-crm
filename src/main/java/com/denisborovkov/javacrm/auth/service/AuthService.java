@@ -1,11 +1,12 @@
-package com.denisborovkov.javacrm.service;
+package com.denisborovkov.javacrm.auth.service;
 
-import com.denisborovkov.javacrm.dto.auth.*;
-import com.denisborovkov.javacrm.dto.entity.UserDTO;
-import com.denisborovkov.javacrm.dto.token.ForgotRequest;
-import com.denisborovkov.javacrm.dto.token.ForgotResponse;
-import com.denisborovkov.javacrm.entity.UserEntity;
-import com.denisborovkov.javacrm.mapper.UserMapper;
+import com.denisborovkov.javacrm.auth.dto.*;
+import com.denisborovkov.javacrm.user.dto.UserDTO;
+import com.denisborovkov.javacrm.auth.token.ForgotRequest;
+import com.denisborovkov.javacrm.auth.token.ForgotResponse;
+import com.denisborovkov.javacrm.user.domain.UserEntity;
+import com.denisborovkov.javacrm.user.mapper.UserMapper;
+import com.denisborovkov.javacrm.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -63,3 +64,6 @@ public class AuthService {
         }
     }
 }
+
+
+
